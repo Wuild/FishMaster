@@ -114,6 +114,15 @@ function FishMaster:CursorCanGoInSlot(button)
     return CursorCanGoInSlot(button:GetID())
 end
 
+function FishMaster:SavePosition(frame)
+    local centerx, centery = frame:GetCenter()
+    local scale = frame:GetScale()
+    local p, f, rp, x, y = "CENTER", "UIParent", "BOTTOMLEFT", centerx * scale, centery * scale
+    FishMaster.db.char.point = {
+        p = p, rf = f, rp = rp, x = x, y = y,
+    }
+end
+
 function FishMaster:FindItemInBags(itemID)
     for i = 0, NUM_BAG_SLOTS do
         for z = 1, GetContainerNumSlots(i) do

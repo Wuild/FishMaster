@@ -74,7 +74,14 @@ _FishMaster.configsDefaults = {
     char = {
         autoLure = false,
         outfit = {},
-        storedOutfit = {}
+        storedOutfit = {},
+        point = {
+            p = "CENTER",
+            rf = "UIParent",
+            rp = "CENTER",
+            x = 0,
+            y = 0,
+        },
     },
     profile = {
 

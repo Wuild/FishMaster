@@ -17,27 +17,12 @@ end
 
 local minimapIcon = LibStub("LibDataBroker-1.1"):NewDataObject("FishMasterMinimapIcon", {
     type = "data source",
-    text = "Gatherlite",
+    text = _FishMaster.name,
     icon = _FishMaster.iconPath .. "Fishhook",
 
     OnClick = function(self, button)
         if button == "LeftButton" then
-            --FishMaster.equipment:Toggle()
-
-            if FishMaster.db.char.enabled then
-                for key, item in pairs(FishMaster.db.char.storedOutfit) do
-                    EquipItemByName(item, key);
-                    FishMaster.db.char.storedOutfit[key] = nil;
-                    FishMaster.db.char.enabled = false;
-                end
-            else
-                local pole = FishMaster:FindBestPole();
-                if pole then
-                    FishMaster.db.char.storedOutfit[INVSLOT_MAINHAND] = GetInventoryItemID("player", INVSLOT_MAINHAND);
-                    EquipItemByName(FishMaster:FindBestPole(), INVSLOT_MAINHAND);
-                    FishMaster.db.char.enabled = true;
-                end
-            end
+            FishMaster:Toggle();
         elseif button == "RightButton" then
             InterfaceOptionsFrame_OpenToCategory(name)
             InterfaceOptionsFrame_OpenToCategory(name) -- run it again to set the correct tab
@@ -53,17 +38,17 @@ local minimapIcon = LibStub("LibDataBroker-1.1"):NewDataObject("FishMasterMinima
 
 function FishMaster:CreateMainButton()
     local texture = "Interface\\Icons\\inv_fishingpole_02";
-    local pfb = CreateFrame("BUTTON", "Poisoner_FreeButton", UIParent, "SecureActionButtonTemplate");
+    local button = CreateFrame("BUTTON", "Poisoner_FreeButton", UIParent, "SecureActionButtonTemplate");
 
     local size = 42
-    pfb:RegisterForClicks("AnyUp")
-    pfb:RegisterForDrag("LeftButton");
-    pfb:SetMovable(true);
-    pfb:SetSize(size, size)
-    pfb:SetScale(1)
-    pfb:SetAlpha(1)
+    button:RegisterForClicks("AnyUp")
+    button:RegisterForDrag("LeftButton");
+    button:SetMovable(true);
+    button:SetSize(size, size)
+    button:SetScale(1)
+    button:SetAlpha(1)
 
-    pfb:SetScript("OnEnter", function(self)
+    button:SetScript("OnEnter", function(self)
         GameTooltip:ClearLines();
         GameTooltip:SetOwner(self, "ANCHOR_MIDDLELEFT");
 
@@ -74,48 +59,51 @@ function FishMaster:CreateMainButton()
         GameTooltip:Show();
     end);
 
-    pfb:SetScript("OnLeave", function(self)
+    button:SetScript("OnLeave", function(self)
         GameTooltip:ClearLines();
         GameTooltip:Hide();
     end);
 
-    pfb:ClearAllPoints();
+    button:ClearAllPoints();
 
-    pfb:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-    pfb:SetFrameStrata("MEDIUM")
-    pfb:SetFrameLevel(1)
+    button:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+    button:SetFrameStrata("MEDIUM")
+    button:SetFrameLevel(1)
 
-    if not pfb.Texture then
-        pfb.Texture = pfb:CreateTexture(pfb:GetName() .. "Icon", "ARTWORK");
-    end
-    pfb.Texture:SetTexture(texture)
-    pfb.Texture:ClearAllPoints()
-    pfb.Texture:SetPoint("CENTER", pfb, "CENTER", 0, 0)
-    pfb.Texture:SetTexCoord(0, 1, 0, 1)
+    button.Texture = button:CreateTexture(button:GetName() .. "Icon", "ARTWORK");
+    button.Texture:SetTexture(texture)
+    button.Texture:ClearAllPoints()
+    button.Texture:SetPoint("CENTER", button, "CENTER", 0, 0)
+    button.Texture:SetTexCoord(0, 1, 0, 1)
 
-    pfb.Texture:SetSize(size, size)
-    pfb:SetNormalTexture(texture)
-    pfb:SetHighlightTexture(texture)
-    local tex = pfb:GetNormalTexture()
+    button.Texture:SetSize(size, size)
+    button:SetNormalTexture(texture)
+    button:SetHighlightTexture(texture)
+    local tex = button:GetNormalTexture()
     tex:ClearAllPoints()
-    tex:SetPoint("CENTER", pfb, "CENTER", 0, 0)
+    tex:SetPoint("CENTER", button, "CENTER", 0, 0)
     tex:SetSize(size, size)
-    pfb:Show()
 
-    pfb:SetAttribute("type", "macro");
+    local t = FishMaster.db.char.point
+    button:SetPoint(t.p, t.rf, t.rp, t.x / button:GetScale(), t.y / button:GetScale());
 
-    pfb:SetScript("OnDragStart", function(self)
+    button:Show()
+
+    button:SetAttribute("type", "macro");
+
+    button:SetScript("OnDragStart", function(self)
         self:StartMoving()
         self.IsMoving = true
     end);
-    pfb:SetScript("OnDragStop", function(self)
+    button:SetScript("OnDragStop", function(self)
         if self.IsMoving == true then
             self:StopMovingOrSizing()
             self.IsMoving = false
+            FishMaster:SavePosition(self)
         end
     end);
 
-    pfb:SetScript("OnUpdate", function(self)
+    button:SetScript("OnUpdate", function(self)
 
         local text = "";
 
@@ -136,16 +124,11 @@ function FishMaster:CreateMainButton()
             text = text .. "/use [button:1] Fishing\n";
         end
 
-        --if not lured and FishMaster.db.char.autoLure then
-
-        --else
-
-        --end
         self:SetAttribute("macrotext", text)
     end);
-    pfb:SetClampedToScreen(true);
+    button:SetClampedToScreen(true);
 
-    _FishMaster.mainButton = pfb;
+    _FishMaster.mainButton = button;
 end
 
 function FishMaster:CreateLureButtons()
@@ -220,17 +203,48 @@ function FishMaster:CreateLureButtons()
     end
 end
 
+function FishMaster:Toggle()
+    if FishMaster.db.char.enabled then
+        for key, item in pairs(FishMaster.db.char.storedOutfit) do
+            EquipItemByName(item, key);
+            FishMaster.db.char.storedOutfit[key] = nil;
+            FishMaster.db.char.enabled = false;
+        end
+    else
+        local pole = FishMaster:FindBestPole();
+        if pole then
+            FishMaster.db.char.storedOutfit[INVSLOT_MAINHAND] = GetInventoryItemID("player", INVSLOT_MAINHAND);
+            FishMaster.db.char.storedOutfit[INVSLOT_OFFHAND] = GetInventoryItemID("player", INVSLOT_OFFHAND);
+            EquipItemByName(FishMaster:FindBestPole(), INVSLOT_MAINHAND);
+            FishMaster.db.char.enabled = true;
+        end
+    end
+end
+
+function FishMaster:GatherSlash(input)
+    input = string.trim(input, " ");
+    if input == "" or not input then
+        FishMaster:Toggle()
+        return ;
+    elseif input == "config" then
+        InterfaceOptionsFrame_OpenToCategory(name)
+        InterfaceOptionsFrame_OpenToCategory(name) -- run it again to set the correct tab
+    end
+end
+
 function FishMaster:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("FishMasterSettings", _FishMaster.configsDefaults, true)
     self.minimap = LibStub("LibDBIcon-1.0")
     FishMaster.minimap:Register("FishMasterMinimapIcon", minimapIcon, self.db.profile.minimap)
     FishMaster:ScheduleRepeatingTimer("CheckEnabled", 1)
-    FishMaster.equipment:OnLoad()
 
     FishMaster:RegisterEvent("UNIT_INVENTORY_CHANGED", "EventHandler")
     FishMaster:RegisterEvent("BAG_UPDATE", "EventHandler")
     FishMaster:RegisterEvent("LOOT_OPENED", "EventHandler")
     FishMaster:RegisterEvent("PLAYER_ENTERING_WORLD", "EventHandler")
+
+    FishMaster:RegisterChatCommand("fmaster", "GatherSlash")
+    FishMaster:RegisterChatCommand("fishmaster", "GatherSlash")
 
     FishMaster:CreateMainButton()
     FishMaster:CreateLureButtons()
