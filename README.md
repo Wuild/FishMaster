@@ -8,7 +8,6 @@ Use /fishmaster or /fishmaster when using these commands
 
 Command | Arguments | description
 ---:| --- | ---|
-* | | Toggle fishmaster
 configs | | Open fishmaster configs
 Usage example **/fishmaster**
 
