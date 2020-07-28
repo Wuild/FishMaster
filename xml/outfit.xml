@@ -1,0 +1,222 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/FrameXML\UI.xsd">
+
+
+
+    <Frame name="OutfitDisplayFrame" enableMouse="true" useParentLevel="true" virtual="True">
+        <Scripts>
+            <OnLoad>
+                FishMaster.equipment:OnFrameLoad()
+            </OnLoad>
+        </Scripts>
+        <Frames>
+            <!--            <Button name="FishMasterOutfitFrameHeadSlot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" x="3" y="-3"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <!--            <Button name="FishMasterOutfitFrameNeckSlot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameHeadSlot" relativePoint="BOTTOMLEFT" x="0"-->
+            <!--                            y="-4"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <!--            <Button name="FishMasterOutfitFrameShoulderSlot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameNeckSlot" relativePoint="BOTTOMLEFT" x="0"-->
+            <!--                            y="-4"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <!--            <Button name="FishMasterOutfitFrameBackSlot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameShoulderSlot" relativePoint="BOTTOMLEFT"-->
+            <!--                            x="0" y="-4"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <!--            <Button name="FishMasterOutfitFrameChestSlot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameBackSlot" relativePoint="BOTTOMLEFT" x="0"-->
+            <!--                            y="-4"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <!--            <Button name="FishMasterOutfitFrameShirtSlot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameChestSlot" relativePoint="BOTTOMLEFT" x="0"-->
+            <!--                            y="-4"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <!--            <Button name="FishMasterOutfitFrameTabardSlot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameShirtSlot" relativePoint="BOTTOMLEFT" x="0"-->
+            <!--                            y="-4"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <!--            <Button name="FishMasterOutfitFrameWristSlot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameTabardSlot" relativePoint="BOTTOMLEFT"-->
+            <!--                            x="0" y="-4"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <!--            <Button name="FishMasterOutfitFrameHandsSlot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" x="290" y="-3"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <!--            <Button name="FishMasterOutfitFrameWaistSlot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameHandsSlot" relativePoint="BOTTOMLEFT" x="0"-->
+            <!--                            y="-4"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <!--            <Button name="FishMasterOutfitFrameLegsSlot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameWaistSlot" relativePoint="BOTTOMLEFT" x="0"-->
+            <!--                            y="-4"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <!--            <Button name="FishMasterOutfitFrameFeetSlot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameLegsSlot" relativePoint="BOTTOMLEFT" x="0"-->
+            <!--                            y="-4"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <!--            <Button name="FishMasterOutfitFrameFinger0Slot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameFeetSlot" relativePoint="BOTTOMLEFT" x="0"-->
+            <!--                            y="-4"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <!--            <Button name="FishMasterOutfitFrameFinger1Slot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameFinger0Slot" relativePoint="BOTTOMLEFT"-->
+            <!--                            x="0" y="-4"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <!--            <Button name="FishMasterOutfitFrameTrinket0Slot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameFinger1Slot" relativePoint="BOTTOMLEFT"-->
+            <!--                            x="0" y="-4"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <!--            <Button name="FishMasterOutfitFrameTrinket1Slot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameTrinket0Slot" relativePoint="BOTTOMLEFT"-->
+            <!--                            x="0" y="-4"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <Button name="$parentMainHand" inherits="ItemSlotButtonTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="MainHand"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="80" y="50"/>
+                </Anchors>
+            </Button>
+            <!--            <Button name="FishMasterOutfitFrameSecondaryHandSlot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameMainHandSlot" relativePoint="TOPRIGHT"-->
+            <!--                            x="5" y="0"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <!--            <Button name="FishMasterOutfitFrameRangedSlot" inherits="OutfitDisplayItemButtonTemplate">-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameSecondaryHandSlot" relativePoint="TOPRIGHT"-->
+            <!--                            x="5" y="0"/>-->
+            <!--                </Anchors>-->
+            <!--            </Button>-->
+            <!--            <Button name="FishMasterOutfitFrameAmmoSlot">-->
+            <!--                <Size>-->
+            <!--                    <AbsDimension x="27" y="27"/>-->
+            <!--                </Size>-->
+            <!--                <Anchors>-->
+            <!--                    <Anchor point="LEFT" relativeTo="FishMasterOutfitFrameRangedSlot" relativePoint="RIGHT">-->
+            <!--                        <Offset>-->
+            <!--                            <AbsDimension x="15" y="0"/>-->
+            <!--                        </Offset>-->
+            <!--                    </Anchor>-->
+            <!--                </Anchors>-->
+            <!--                <Layers>-->
+            <!--                    <Layer level="BACKGROUND">-->
+            <!--                        <Texture file="Interface\PaperdollInfoFrame\UI-Character-AmmoSlot">-->
+            <!--                            <Size>-->
+            <!--                                <AbsDimension x="41" y="41"/>-->
+            <!--                            </Size>-->
+            <!--                            <Anchors>-->
+            <!--                                <Anchor point="CENTER">-->
+            <!--                                    <Offset>-->
+            <!--                                        <AbsDimension x="0" y="0"/>-->
+            <!--                                    </Offset>-->
+            <!--                                </Anchor>-->
+            <!--                            </Anchors>-->
+            <!--                            <TexCoords left="0" right="0.640625" top="0" bottom="0.640625"/>-->
+            <!--                        </Texture>-->
+            <!--                    </Layer>-->
+            <!--                    <Layer level="BORDER">-->
+            <!--                        <Texture name="$parentIconTexture"/>-->
+            <!--                        <FontString name="$parentCount" parentKey="Count" inherits="NumberFontNormal" justifyH="RIGHT"-->
+            <!--                                    hidden="true">-->
+            <!--                            <Anchors>-->
+            <!--                                <Anchor point="BOTTOMRIGHT">-->
+            <!--                                    <Offset>-->
+            <!--                                        <AbsDimension x="-1" y="2"/>-->
+            <!--                                    </Offset>-->
+            <!--                                </Anchor>-->
+            <!--                            </Anchors>-->
+            <!--                        </FontString>-->
+            <!--                    </Layer>-->
+            <!--                    <Layer level="OVERLAY">-->
+            <!--                        <Texture file="Interface\PaperdollInfoFrame\UI-Character-AmmoSlot">-->
+            <!--                            <Size>-->
+            <!--                                <AbsDimension x="23" y="41"/>-->
+            <!--                            </Size>-->
+            <!--                            <Anchors>-->
+            <!--                                <Anchor point="CENTER">-->
+            <!--                                    <Offset>-->
+            <!--                                        <AbsDimension x="-22" y="0"/>-->
+            <!--                                    </Offset>-->
+            <!--                                </Anchor>-->
+            <!--                            </Anchors>-->
+            <!--                            <TexCoords left="0.640625" right="1.0" top="0" bottom="0.640625"/>-->
+            <!--                        </Texture>-->
+            <!--                    </Layer>-->
+            <!--                </Layers>-->
+            <!--                <Frames>-->
+            <!--                    <Cooldown name="$parentCooldown" inherits="CooldownFrameTemplate"/>-->
+            <!--                </Frames>-->
+            <!--                <NormalTexture name="$parentNormalTexture" file="Interface\Buttons\UI-Quickslot2">-->
+            <!--                    <Size>-->
+            <!--                        <AbsDimension x="47" y="47"/>-->
+            <!--                    </Size>-->
+            <!--                    <Anchors>-->
+            <!--                        <Anchor point="CENTER">-->
+            <!--                            <Offset>-->
+            <!--                                <AbsDimension x="0" y="-1"/>-->
+            <!--                            </Offset>-->
+            <!--                        </Anchor>-->
+            <!--                    </Anchors>-->
+            <!--                </NormalTexture>-->
+            <!--                <PushedTexture file="Interface\Buttons\UI-Quickslot-Depress"/>-->
+            <!--                <HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>-->
+            <!--            </Button>-->
+
+            <PlayerModel name="FBOutfitFrameModelFrame">
+                <Size x="303" y="291"/>
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset>
+                            <AbsDimension x="25" y="-15"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnUpdate function="Model_OnUpdate"/>
+                    <OnLoad>
+                        Model_OnLoad(self, MODELFRAME_MAX_PLAYER_ZOOM, nil, nil, CharacterModelFrame_OnMouseUp);
+                        self:SetUnit("player");
+                    </OnLoad>
+                </Scripts>
+            </PlayerModel>
+        </Frames>
+    </Frame>
+</Ui>
