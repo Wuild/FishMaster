@@ -48,6 +48,8 @@ function FishMaster:CreateMainButton()
     button:SetScale(1)
     button:SetAlpha(1)
 
+
+
     button:SetScript("OnEnter", function(self)
         GameTooltip:ClearLines();
         GameTooltip:SetOwner(self, "ANCHOR_MIDDLELEFT");
@@ -87,7 +89,7 @@ function FishMaster:CreateMainButton()
     local t = FishMaster.db.char.point
     button:SetPoint(t.p, t.rf, t.rp, t.x / button:GetScale(), t.y / button:GetScale());
 
-    button:Show()
+    button:Hide()
 
     button:SetAttribute("type", "macro");
 
@@ -238,7 +240,7 @@ function FishMaster:OnInitialize()
     FishMaster.minimap:Register("FishMasterMinimapIcon", minimapIcon, self.db.profile.minimap)
     FishMaster:ScheduleRepeatingTimer("CheckEnabled", 1)
 
-    FishMaster:RegisterEvent("UNIT_INVENTORY_CHANGED", "EventHandler")
+    FishMaster:RegisterEvent("PLAYER_EQUIPMENT_CHANGED", "EventHandler")
     FishMaster:RegisterEvent("BAG_UPDATE", "EventHandler")
     FishMaster:RegisterEvent("LOOT_OPENED", "EventHandler")
     FishMaster:RegisterEvent("PLAYER_ENTERING_WORLD", "EventHandler")
@@ -248,4 +250,5 @@ function FishMaster:OnInitialize()
 
     FishMaster:CreateMainButton()
     FishMaster:CreateLureButtons()
+    FishMaster:CheckEnabled();
 end

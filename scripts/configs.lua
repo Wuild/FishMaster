@@ -8,6 +8,7 @@ _FishMaster.iconPath = "Interface\\AddOns\\" .. _FishMaster.name .. "\\images\\"
 
 _FishMaster.equipped = false;
 _FishMaster.lured = false;
+_FishMaster.settings = {};
 
 _FishMaster.poles = {
     19970, -- Arcanite Fishing Pole
@@ -82,6 +83,10 @@ _FishMaster.configsDefaults = {
             x = 0,
             y = 0,
         },
+        audio = {
+            enabled = false
+        },
+        defaultAudio = {}
     },
     profile = {
 

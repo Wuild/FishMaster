@@ -27,7 +27,11 @@
     <Script file="locales\ruRU.lua"/>
     <Script file="locales\zhCN.lua"/>
 
+    <Script file="scripts/settings/general.lua"/>
+    <Script file="scripts/settings/audio.lua"/>
     <Script file="scripts/settings.lua"/>
+
+
     <Script file="scripts/methods.lua"/>
 
     <Script file="scripts/equipment.lua"/>

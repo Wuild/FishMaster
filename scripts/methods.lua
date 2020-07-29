@@ -1,6 +1,8 @@
 local name, _FishMaster = ...;
 local Locale = LibStub("AceLocale-3.0"):GetLocale(name, true)
 
+_FishMaster.enabled = nil;
+
 function FishMaster:Colorize(str, color)
     local c = '';
     if color == 'red' then
@@ -45,11 +47,46 @@ function FishMaster:GetPole(id)
     return false;
 end
 
+function FishMaster:SetAudio()
+    print("Set audio")
+
+    local variables = {
+        "Sound_MasterVolume",
+        "Sound_MusicVolume",
+        "Sound_AmbienceVolume",
+        "Sound_SFXVolume",
+        "Sound_EnableSoundWhenGameIsInBG",
+        "particleDensity",
+        "Sound_EnableAllSound",
+        "Sound_EnableSFX"
+    }
+
+    if FishMaster.db.char.turnOnSound then
+        for key, var in pairs(variables) do
+            FishMaster.db.char.defaultAudio[var] = GetCVar(var);
+        end
+    end
+
+end
+
+function FishMaster:enable()
+    _FishMaster.mainButton:Show();
+end
+
+function FishMaster:disable()
+    _FishMaster.mainButton:Hide();
+end
+
 function FishMaster:CheckEnabled()
-    if FishMaster:IsEnabled() then
-        _FishMaster.mainButton:Show();
-    else
-        _FishMaster.mainButton:Hide();
+    if not _FishMaster.enabled and FishMaster:IsEnabled() then
+        _FishMaster.enabled = true;
+        FishMaster:enable()
+    elseif _FishMaster.enabled and not FishMaster:IsEnabled() then
+        _FishMaster.enabled = false;
+        FishMaster:disable()
+    elseif _FishMaster.enabled == nil and not FishMaster:IsEnabled() then
+        _FishMaster.enabled = false;
+        FishMaster:disable()
     end
 end
 
@@ -157,7 +194,8 @@ end
 function FishMaster:EventHandler(event, ...)
     --print(event)
 
-    if event == "BAG_UPDATE" or event == "UNIT_INVENTORY_CHANGED" then
+    if event == "BAG_UPDATE" or event == "PLAYER_EQUIPMENT_CHANGED" then
         FishMaster:CheckEnabled()
+        print("check player equipment")
     end
 end
