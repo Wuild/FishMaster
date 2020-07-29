@@ -1,4 +1,4 @@
-![FishMaster](./banner.png)
+![FishMaster](./banner.jpg)
 Become a fishing master with this easy to use addon wich helps with luring and equiping your fishing items.
 
 [![Buy Me A Coffee](https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png "Buy Me A Coffee")](https://www.buymeacoffee.com/yuImx6KOY "Buy Me A Coffee")
