@@ -196,6 +196,5 @@ function FishMaster:EventHandler(event, ...)
 
     if event == "BAG_UPDATE" or event == "PLAYER_EQUIPMENT_CHANGED" then
         FishMaster:CheckEnabled()
-        print("check player equipment")
     end
 end
