@@ -1,6 +1,8 @@
 local name = ...;
 local L = LibStub("AceLocale-3.0"):NewLocale(name, "enUS", true)
 
+L["fishing"] = "Fishing"
+
 L["minimap.left_click"] = "Left Click"
 L["minimap.left_click_text"] = "Toggle equipment"
 L["minimap.right_click"] = "Right Click"

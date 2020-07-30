@@ -2,17 +2,16 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.blizzard.com/wow/ui/FrameXML\UI.xsd">
 
-    <Button name="ItemSlotButtonTemplate" inherits="ItemButtonTemplate" virtual="true">
+    <Button name="ItemSlotButtonTemplate" inherits="ItemButtonTemplate" virtual="true" registerForDrag="LeftButton">
         <Frames>
             <Cooldown name="$parentCooldown" inherits="CooldownFrameTemplate"/>
         </Frames>
         <Scripts>
-
             <OnLoad>
                 FishMaster.ItemSlot:OnLoad(self)
             </OnLoad>
             <OnClick>
-                FishMaster.ItemSlot:OnClick(self)
+                FishMaster.ItemSlot:OnClick(self, button)
             </OnClick>
             <OnEnter>
                 FishMaster.ItemSlot:OnEnter(self)
@@ -26,30 +25,53 @@
             <OnReceiveDrag>
                 FishMaster.ItemSlot:OnReceiveDrag(self)
             </OnReceiveDrag>
-
-            <!--            <OnLoad>-->
-            <!--                FishMaster.equipment:ItemSlotLoad(self)-->
-            <!--            </OnLoad>-->
-            <!--            <OnShow>-->
-            <!--                FishMaster.equipment:ItemSlotDraw(self)-->
-            <!--            </OnShow>-->
-            <!--            <OnClick>-->
-            <!--                FishMaster.equipment:ItemSlotOnClick(self)-->
-            <!--            </OnClick>-->
-            <!--            <OnEvent>-->
-            <!--                FishMaster.equipment:ItemSlotOnEvent(self)-->
-            <!--            </OnEvent>-->
-            <!--            <OnEnter>-->
-            <!--                FishMaster.equipment:ItemSlotOnEnter(self)-->
-            <!--            </OnEnter>-->
-            <!--            <OnLeave>-->
-            <!--                GameTooltip.finished = nil;-->
-            <!--                GameTooltip:Hide();-->
-            <!--            </OnLeave>-->
-            <!--            <OnReceiveDrag>-->
-            <!--                local parent = self:GetParent();-->
-            <!--                FishMaster.equipment:ItemSlotOnClick(self, "LeftButton", 1);-->
-            <!--            </OnReceiveDrag>-->
         </Scripts>
     </Button>
+
+    <Button name="ItemSlotButtonLeftTemplate" inherits="ItemSlotButtonTemplate" virtual="true">
+        <Layers>
+            <Layer level="BORDER">
+                <Texture name="$parentIconTexture" parentKey="icon"/>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="-1">
+                <Texture name="$parentFrame" inherits="Char-LeftSlot">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="-4"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+    </Button>
+
+    <Button name="ItemSlotButtonRightTemplate" inherits="ItemSlotButtonTemplate" virtual="true">
+        <Layers>
+            <Layer level="BORDER">
+                <Texture name="$parentIconTexture" parentKey="icon"/>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="-1">
+                <Texture name="$parentFrame" inherits="Char-RightSlot">
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" x="4"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+    </Button>
+
+
+    <Button name="ItemSlotButtonBottomTemplate" inherits="ItemSlotButtonTemplate" virtual="true">
+        <Layers>
+            <Layer level="BORDER">
+                <Texture name="$parentIconTexture" parentKey="icon"/>
+            </Layer>
+            <Layer level="BACKGROUND" textureSubLevel="-1">
+                <Texture name="$parentFrame" inherits="Char-BottomSlot">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="-4" y="8"/>
+                    </Anchors>
+                </Texture>
+            </Layer>
+        </Layers>
+    </Button>
+
 </Ui>

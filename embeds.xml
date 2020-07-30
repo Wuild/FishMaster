@@ -17,6 +17,7 @@
     <Include file="xml/button.xml"/>
 
 
+    <Script file="scripts/events.lua"/>
     <Script file="scripts/configs.lua"/>
 
     <Script file="locales\enUS.lua"/>
@@ -50,7 +51,7 @@
         </Attributes>
 
         <Frames>
-            <Frame parentKey="Outfit" name="FishMasterOutfitFrame" inherits="OutfitDisplayFrame">
+            <Frame parentKey="Outfit" name="$parentOutfit" inherits="OutfitDisplayFrame">
                 <Anchors>
                     <Anchor point="TOPLEFT" relativeTo="FishMasterFrameInset" relativePoint="TOPLEFT"/>
                     <Anchor point="BOTTOMRIGHT" relativeTo="FishMasterFrameInset" relativePoint="BOTTOMRIGHT"/>
@@ -58,6 +59,4 @@
             </Frame>
         </Frames>
     </Frame>
-
-
 </Ui>

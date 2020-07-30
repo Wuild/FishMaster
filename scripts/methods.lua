@@ -3,6 +3,41 @@ local Locale = LibStub("AceLocale-3.0"):GetLocale(name, true)
 
 _FishMaster.enabled = nil;
 
+FishMaster.slotInfo = {
+    [1] = { name = "HeadSlot", tooltip = HEADSLOT, id = INVSLOT_HEAD },
+    [2] = { name = "NeckSlot", tooltip = NECKSLOT, id = INVSLOT_NECK },
+    [3] = { name = "ShoulderSlot", tooltip = SHOULDERSLOT, id = INVSLOT_SHOULDER },
+    [4] = { name = "BackSlot", tooltip = BACKSLOT, id = INVSLOT_BACK },
+    [5] = { name = "ChestSlot", tooltip = CHESTSLOT, id = INVSLOT_CHEST },
+    [6] = { name = "ShirtSlot", tooltip = SHIRTSLOT, id = INVSLOT_BODY },
+    [7] = { name = "TabardSlot", tooltip = TABARDSLOT, id = INVSLOT_TABARD },
+    [8] = { name = "WristSlot", tooltip = WRISTSLOT, id = INVSLOT_WRIST },
+    [9] = { name = "HandsSlot", tooltip = HANDSSLOT, id = INVSLOT_HAND },
+    [10] = { name = "WaistSlot", tooltip = WAISTSLOT, id = INVSLOT_WAIST },
+    [11] = { name = "LegsSlot", tooltip = LEGSSLOT, id = INVSLOT_LEGS },
+    [12] = { name = "FeetSlot", tooltip = FEETSLOT, id = INVSLOT_FEET },
+    [13] = { name = "Finger0Slot", tooltip = FINGER0SLOT, id = INVSLOT_FINGER1 },
+    [14] = { name = "Finger1Slot", tooltip = FINGER1SLOT, id = INVSLOT_FINGER2 },
+    [15] = { name = "Trinket0Slot", tooltip = TRINKET0SLOT, id = INVSLOT_TRINKET1 },
+    [16] = { name = "Trinket1Slot", tooltip = TRINKET1SLOT, id = INVSLOT_TRINKET2 },
+    [17] = { name = "MainHandSlot", tooltip = MAINHANDSLOT, id = INVSLOT_MAINHAND },
+    [18] = { name = "SecondaryHandSlot", tooltip = SECONDARYHANDSLOT, id = INVSLOT_OFFHAND },
+    [19] = { name = "RangedSlot", tooltip = RANGEDSLOT, id = INVSLOT_RANGED },
+    [20] = { name = "AmmoSlot", tooltip = AMMOSLOT, id = INVSLOT_AMMO },
+}
+
+function FishMaster:SlotInfo()
+    return FishMaster.slotInfo;
+end
+
+function FishMaster:FindSlotInfo(name)
+    for index, slot in pairs(FishMaster:SlotInfo()) do
+        if slot.name == name then
+            return slot;
+        end
+    end
+end
+
 function FishMaster:Colorize(str, color)
     local c = '';
     if color == 'red' then
@@ -48,8 +83,6 @@ function FishMaster:GetPole(id)
 end
 
 function FishMaster:SetAudio()
-    print("Set audio")
-
     local variables = {
         "Sound_MasterVolume",
         "Sound_MusicVolume",
@@ -78,13 +111,13 @@ function FishMaster:disable()
 end
 
 function FishMaster:CheckEnabled()
-    if not _FishMaster.enabled and FishMaster:IsEnabled() then
+    if not _FishMaster.enabled and FishMaster.db.char.enabled then
         _FishMaster.enabled = true;
         FishMaster:enable()
-    elseif _FishMaster.enabled and not FishMaster:IsEnabled() then
+    elseif _FishMaster.enabled and not FishMaster.db.char.enabled then
         _FishMaster.enabled = false;
         FishMaster:disable()
-    elseif _FishMaster.enabled == nil and not FishMaster:IsEnabled() then
+    elseif _FishMaster.enabled == nil and not FishMaster.db.char.enabled then
         _FishMaster.enabled = false;
         FishMaster:disable()
     end
@@ -172,10 +205,21 @@ function FishMaster:FindItemInBags(itemID)
 end
 
 function FishMaster:FindBestPole()
+    local itemID, bag, slot
     for key, pole in pairs(_FishMaster.poles) do
-        local itemID, bag, slot = FishMaster:FindItemInBags(pole);
+        itemID, bag, slot = FishMaster:FindItemInBags(pole);
         if itemID then
             return itemID, bag, slot
+        end
+    end
+
+    if not itemID then
+        local mainHandID = GetInventoryItemID("player", INVSLOT_MAINHAND);
+
+        for key, pole in pairs(_FishMaster.poles) do
+            if pole == mainHandID then
+                return pole;
+            end
         end
     end
 end
@@ -192,9 +236,17 @@ function FishMaster:FindBestLure()
 end
 
 function FishMaster:EventHandler(event, ...)
-    --print(event)
-
     if event == "BAG_UPDATE" or event == "PLAYER_EQUIPMENT_CHANGED" then
         FishMaster:CheckEnabled()
     end
+
+    if event == "SKILL_LINES_CHANGED" then
+        _G[_FishMaster.frame:GetName() .. "Outfit"].RankFrame.RankLevel:SetText(FishMaster:GetProfessionLevel("fishing") .. "/" .. 300)
+        _G[_FishMaster.frame:GetName() .. "Outfit"].RankFrame:SetValue(FishMaster:GetProfessionLevel("fishing"));
+    end
+
+end
+
+function FishMaster:ItemSlotChange(event, slot, item)
+    FishMaster.db.char.outfit[slot] = item;
 end

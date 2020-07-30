@@ -3,220 +3,477 @@
     xsi:schemaLocation="http://www.blizzard.com/wow/ui/FrameXML\UI.xsd">
 
 
-
     <Frame name="OutfitDisplayFrame" enableMouse="true" useParentLevel="true" virtual="True">
         <Scripts>
             <OnLoad>
-                FishMaster.equipment:OnFrameLoad()
+                FishMaster.equipment:OnFrameLoad(self)
             </OnLoad>
         </Scripts>
         <Frames>
-            <!--            <Button name="FishMasterOutfitFrameHeadSlot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" x="3" y="-3"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <!--            <Button name="FishMasterOutfitFrameNeckSlot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameHeadSlot" relativePoint="BOTTOMLEFT" x="0"-->
-            <!--                            y="-4"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <!--            <Button name="FishMasterOutfitFrameShoulderSlot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameNeckSlot" relativePoint="BOTTOMLEFT" x="0"-->
-            <!--                            y="-4"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <!--            <Button name="FishMasterOutfitFrameBackSlot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameShoulderSlot" relativePoint="BOTTOMLEFT"-->
-            <!--                            x="0" y="-4"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <!--            <Button name="FishMasterOutfitFrameChestSlot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameBackSlot" relativePoint="BOTTOMLEFT" x="0"-->
-            <!--                            y="-4"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <!--            <Button name="FishMasterOutfitFrameShirtSlot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameChestSlot" relativePoint="BOTTOMLEFT" x="0"-->
-            <!--                            y="-4"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <!--            <Button name="FishMasterOutfitFrameTabardSlot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameShirtSlot" relativePoint="BOTTOMLEFT" x="0"-->
-            <!--                            y="-4"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <!--            <Button name="FishMasterOutfitFrameWristSlot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameTabardSlot" relativePoint="BOTTOMLEFT"-->
-            <!--                            x="0" y="-4"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <!--            <Button name="FishMasterOutfitFrameHandsSlot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" x="290" y="-3"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <!--            <Button name="FishMasterOutfitFrameWaistSlot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameHandsSlot" relativePoint="BOTTOMLEFT" x="0"-->
-            <!--                            y="-4"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <!--            <Button name="FishMasterOutfitFrameLegsSlot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameWaistSlot" relativePoint="BOTTOMLEFT" x="0"-->
-            <!--                            y="-4"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <!--            <Button name="FishMasterOutfitFrameFeetSlot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameLegsSlot" relativePoint="BOTTOMLEFT" x="0"-->
-            <!--                            y="-4"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <!--            <Button name="FishMasterOutfitFrameFinger0Slot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameFeetSlot" relativePoint="BOTTOMLEFT" x="0"-->
-            <!--                            y="-4"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <!--            <Button name="FishMasterOutfitFrameFinger1Slot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameFinger0Slot" relativePoint="BOTTOMLEFT"-->
-            <!--                            x="0" y="-4"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <!--            <Button name="FishMasterOutfitFrameTrinket0Slot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameFinger1Slot" relativePoint="BOTTOMLEFT"-->
-            <!--                            x="0" y="-4"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <!--            <Button name="FishMasterOutfitFrameTrinket1Slot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameTrinket0Slot" relativePoint="BOTTOMLEFT"-->
-            <!--                            x="0" y="-4"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <Button name="$parentMainHand" inherits="ItemSlotButtonTemplate">
+            <StatusBar parentKey="RankFrame" drawLayer="BACKGROUND" minValue="0" maxValue="300" defaultValue="0">
+                <Size x="237" y="14"/>
+                <Anchors>
+                    <Anchor point="TOP" x="20" y="25"/>
+                </Anchors>
+
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <FontString name="$parentSkillTitle" parentKey="RankText" inherits="GameFontNormalSmall"
+                                    justifyH="CENTER" text="Fishing">
+                            <Size x="0" y="9"/>
+                            <Anchors>
+                                <Anchor point="LEFT" x="5" y="1"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="RankLevel" inherits="WhiteNormalNumberFont" justifyH="CENTER"
+                                    text="1/300">
+                            <Size x="0" y="9"/>
+                            <Anchors>
+                                <Anchor point="LEFT" x="10" relativeTo="$parentSkillTitle" relativePoint="RIGHT"/>
+                            </Anchors>
+                        </FontString>
+                        <Texture parentKey="BorderLeft"
+                                 file="Interface\PaperDollInfoFrame\UI-Character-Skills-BarBorder">
+                            <Size x="8" y="17"/>
+
+                            <Anchors>
+                                <Anchor point="LEFT" x="-3" y="0"/>
+                            </Anchors>
+                            <TexCoords left="0.007843" right="0.043137" top="0.193548" bottom="0.774193"/>
+                        </Texture>
+                        <Texture parentKey="BorderRight"
+                                 file="Interface\PaperDollInfoFrame\UI-Character-Skills-BarBorder">
+                            <Size x="8" y="17"/>
+
+                            <Anchors>
+                                <Anchor point="RIGHT" x="4" y="0"/>
+                            </Anchors>
+                            <TexCoords left="0.043137" right="0.007843" top="0.193548" bottom="0.774193"/>
+                        </Texture>
+                        <Texture parentKey="BorderMid"
+                                 file="Interface\PaperDollInfoFrame\UI-Character-Skills-BarBorder">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.BorderLeft" relativePoint="TOPRIGHT"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.BorderRight"
+                                        relativePoint="BOTTOMLEFT"/>
+                            </Anchors>
+                            <TexCoords left="0.113726" right="0.1490196" top="0.193548" bottom="0.774193"/>
+                        </Texture>
+                    </Layer>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Background">
+                            <Color r="0.0" g="0.0" b="0.75" a="0.1"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <BarTexture parentKey="Bar" file="Interface\PaperDollInfoFrame\UI-Character-Skills-Bar"/>
+                <BarColor r="0.0" g="0.0" b="1.0" a=".5"/>
+            </StatusBar>
+
+            <Button name="$parentHead" inherits="ItemSlotButtonLeftTemplate">
                 <Attributes>
-                    <Attribute name="slot" value="MainHand"/>
+                    <Attribute name="slot" value="HeadSlot"/>
                 </Attributes>
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" x="80" y="50"/>
+                    <Anchor point="TOPLEFT" x="3" y="-3"/>
                 </Anchors>
             </Button>
-            <!--            <Button name="FishMasterOutfitFrameSecondaryHandSlot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameMainHandSlot" relativePoint="TOPRIGHT"-->
-            <!--                            x="5" y="0"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <!--            <Button name="FishMasterOutfitFrameRangedSlot" inherits="OutfitDisplayItemButtonTemplate">-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="TOPLEFT" relativeTo="FishMasterOutfitFrameSecondaryHandSlot" relativePoint="TOPRIGHT"-->
-            <!--                            x="5" y="0"/>-->
-            <!--                </Anchors>-->
-            <!--            </Button>-->
-            <!--            <Button name="FishMasterOutfitFrameAmmoSlot">-->
-            <!--                <Size>-->
-            <!--                    <AbsDimension x="27" y="27"/>-->
-            <!--                </Size>-->
-            <!--                <Anchors>-->
-            <!--                    <Anchor point="LEFT" relativeTo="FishMasterOutfitFrameRangedSlot" relativePoint="RIGHT">-->
-            <!--                        <Offset>-->
-            <!--                            <AbsDimension x="15" y="0"/>-->
-            <!--                        </Offset>-->
-            <!--                    </Anchor>-->
-            <!--                </Anchors>-->
-            <!--                <Layers>-->
-            <!--                    <Layer level="BACKGROUND">-->
-            <!--                        <Texture file="Interface\PaperdollInfoFrame\UI-Character-AmmoSlot">-->
-            <!--                            <Size>-->
-            <!--                                <AbsDimension x="41" y="41"/>-->
-            <!--                            </Size>-->
-            <!--                            <Anchors>-->
-            <!--                                <Anchor point="CENTER">-->
-            <!--                                    <Offset>-->
-            <!--                                        <AbsDimension x="0" y="0"/>-->
-            <!--                                    </Offset>-->
-            <!--                                </Anchor>-->
-            <!--                            </Anchors>-->
-            <!--                            <TexCoords left="0" right="0.640625" top="0" bottom="0.640625"/>-->
-            <!--                        </Texture>-->
-            <!--                    </Layer>-->
-            <!--                    <Layer level="BORDER">-->
-            <!--                        <Texture name="$parentIconTexture"/>-->
-            <!--                        <FontString name="$parentCount" parentKey="Count" inherits="NumberFontNormal" justifyH="RIGHT"-->
-            <!--                                    hidden="true">-->
-            <!--                            <Anchors>-->
-            <!--                                <Anchor point="BOTTOMRIGHT">-->
-            <!--                                    <Offset>-->
-            <!--                                        <AbsDimension x="-1" y="2"/>-->
-            <!--                                    </Offset>-->
-            <!--                                </Anchor>-->
-            <!--                            </Anchors>-->
-            <!--                        </FontString>-->
-            <!--                    </Layer>-->
-            <!--                    <Layer level="OVERLAY">-->
-            <!--                        <Texture file="Interface\PaperdollInfoFrame\UI-Character-AmmoSlot">-->
-            <!--                            <Size>-->
-            <!--                                <AbsDimension x="23" y="41"/>-->
-            <!--                            </Size>-->
-            <!--                            <Anchors>-->
-            <!--                                <Anchor point="CENTER">-->
-            <!--                                    <Offset>-->
-            <!--                                        <AbsDimension x="-22" y="0"/>-->
-            <!--                                    </Offset>-->
-            <!--                                </Anchor>-->
-            <!--                            </Anchors>-->
-            <!--                            <TexCoords left="0.640625" right="1.0" top="0" bottom="0.640625"/>-->
-            <!--                        </Texture>-->
-            <!--                    </Layer>-->
-            <!--                </Layers>-->
-            <!--                <Frames>-->
-            <!--                    <Cooldown name="$parentCooldown" inherits="CooldownFrameTemplate"/>-->
-            <!--                </Frames>-->
-            <!--                <NormalTexture name="$parentNormalTexture" file="Interface\Buttons\UI-Quickslot2">-->
-            <!--                    <Size>-->
-            <!--                        <AbsDimension x="47" y="47"/>-->
-            <!--                    </Size>-->
-            <!--                    <Anchors>-->
-            <!--                        <Anchor point="CENTER">-->
-            <!--                            <Offset>-->
-            <!--                                <AbsDimension x="0" y="-1"/>-->
-            <!--                            </Offset>-->
-            <!--                        </Anchor>-->
-            <!--                    </Anchors>-->
-            <!--                </NormalTexture>-->
-            <!--                <PushedTexture file="Interface\Buttons\UI-Quickslot-Depress"/>-->
-            <!--                <HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>-->
-            <!--            </Button>-->
-
-            <PlayerModel name="FBOutfitFrameModelFrame">
-                <Size x="303" y="291"/>
+            <Button name="$parentNeck" inherits="ItemSlotButtonLeftTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="NeckSlot"/>
+                </Attributes>
                 <Anchors>
-                    <Anchor point="TOPLEFT">
+                    <Anchor point="TOPLEFT" relativeTo="$parentHead" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                </Anchors>
+            </Button>
+            <Button name="$parentShoulder" inherits="ItemSlotButtonLeftTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="ShoulderSlot"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentNeck" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                </Anchors>
+            </Button>
+            <Button name="$parentBack" inherits="ItemSlotButtonLeftTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="BackSlot"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentShoulder" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                </Anchors>
+            </Button>
+            <Button name="$parentChest" inherits="ItemSlotButtonLeftTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="ChestSlot"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentBack" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                </Anchors>
+            </Button>
+            <Button name="$parentShirt" inherits="ItemSlotButtonLeftTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="ShirtSlot"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentChest" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                </Anchors>
+            </Button>
+            <Button name="$parentTabard" inherits="ItemSlotButtonLeftTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="TabardSlot"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentShirt" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                </Anchors>
+            </Button>
+            <Button name="$parentWrist" inherits="ItemSlotButtonLeftTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="WristSlot"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentTabard" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                </Anchors>
+            </Button>
+
+
+            <Button name="$parentHands" inherits="ItemSlotButtonRightTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="HandsSlot"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="TOPRIGHT" x="-3" y="-3"/>
+                </Anchors>
+            </Button>
+            <Button name="$parentWaist" inherits="ItemSlotButtonRightTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="WaistSlot"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentHands" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                </Anchors>
+            </Button>
+            <Button name="$parentLegs" inherits="ItemSlotButtonRightTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="LegsSlot"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentWaist" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                </Anchors>
+            </Button>
+            <Button name="$parentFeet" inherits="ItemSlotButtonRightTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="FeetSlot"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentLegs" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                </Anchors>
+            </Button>
+            <Button name="$parentFinger0" inherits="ItemSlotButtonRightTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="Finger0Slot"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentFeet" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                </Anchors>
+            </Button>
+            <Button name="$parentFinger1" inherits="ItemSlotButtonRightTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="Finger1Slot"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentFinger0" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                </Anchors>
+            </Button>
+            <Button name="$parentTrinket0" inherits="ItemSlotButtonRightTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="Trinket0Slot"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentFinger1" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                </Anchors>
+            </Button>
+            <Button name="$parentTrinket1" inherits="ItemSlotButtonRightTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="Trinket1Slot"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentTrinket0" relativePoint="BOTTOMLEFT" x="0" y="-4"/>
+                </Anchors>
+            </Button>
+
+            <Button name="$parentMainHand" inherits="ItemSlotButtonBottomTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="MainHandSlot"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" x="80" y="16"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture inherits="Char-Slot-Bottom-Left">
+                            <Anchors>
+                                <Anchor point="TOPRIGHT" relativeTo="$parentFrame" relativePoint="TOPLEFT"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Button>
+
+            <Button name="$paretSecondaryHand" inherits="ItemSlotButtonBottomTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="SecondaryHandSlot"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentMainHand" relativePoint="TOPRIGHT" x="5" y="0"/>
+                </Anchors>
+            </Button>
+            <Button name="$parentRanged" inherits="ItemSlotButtonBottomTemplate">
+                <Attributes>
+                    <Attribute name="slot" value="RangedSlot"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$paretSecondaryHand" relativePoint="TOPRIGHT" x="5" y="0"/>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture inherits="Char-Slot-Bottom-Right">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeTo="$parentFrame" relativePoint="TOPRIGHT"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </Button>
+
+            <Button name="$parentAmmoSlot" frameLevel="5">
+                <Attributes>
+                    <Attribute name="slot" value="AmmoSlot"/>
+                </Attributes>
+                <Size>
+                    <AbsDimension x="27" y="27"/>
+                </Size>
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentRanged" relativePoint="RIGHT">
                         <Offset>
-                            <AbsDimension x="25" y="-15"/>
+                            <AbsDimension x="15" y="0"/>
                         </Offset>
                     </Anchor>
                 </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture file="Interface\PaperdollInfoFrame\UI-Character-AmmoSlot">
+                            <Size>
+                                <AbsDimension x="41" y="41"/>
+                            </Size>
+                            <Anchors>
+                                <Anchor point="CENTER">
+                                    <Offset>
+                                        <AbsDimension x="0" y="0"/>
+                                    </Offset>
+                                </Anchor>
+                            </Anchors>
+                            <TexCoords left="0" right="0.640625" top="0" bottom="0.640625"/>
+                        </Texture>
+                    </Layer>
+                    <Layer level="BORDER">
+                        <Texture name="$parentIconTexture"/>
+                        <FontString name="$parentCount" parentKey="Count" inherits="NumberFontNormal" justifyH="RIGHT"
+                                    hidden="true">
+                            <Anchors>
+                                <Anchor point="BOTTOMRIGHT">
+                                    <Offset>
+                                        <AbsDimension x="-1" y="2"/>
+                                    </Offset>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <Texture file="Interface\PaperdollInfoFrame\UI-Character-AmmoSlot">
+                            <Size>
+                                <AbsDimension x="23" y="41"/>
+                            </Size>
+                            <Anchors>
+                                <Anchor point="CENTER">
+                                    <Offset>
+                                        <AbsDimension x="-22" y="0"/>
+                                    </Offset>
+                                </Anchor>
+                            </Anchors>
+                            <TexCoords left="0.640625" right="1.0" top="0" bottom="0.640625"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <Frames>
+                    <Cooldown name="$parentCooldown" inherits="CooldownFrameTemplate"/>
+                </Frames>
+                <NormalTexture name="$parentNormalTexture" file="Interface\Buttons\UI-Quickslot2">
+                    <Size>
+                        <AbsDimension x="47" y="47"/>
+                    </Size>
+                    <Anchors>
+                        <Anchor point="CENTER">
+                            <Offset>
+                                <AbsDimension x="0" y="-1"/>
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </NormalTexture>
+                <PushedTexture file="Interface\Buttons\UI-Quickslot-Depress"/>
+                <HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
+            </Button>
+
+            <DressUpModel name="$parentModel" parentKey="model">
+                <Size x="304" y="300"/>
                 <Scripts>
                     <OnUpdate function="Model_OnUpdate"/>
                     <OnLoad>
-                        Model_OnLoad(self, MODELFRAME_MAX_PLAYER_ZOOM, nil, nil, CharacterModelFrame_OnMouseUp);
+                        FishMaster.equipment:OnModelLoad(self)
                         self:SetUnit("player");
                     </OnLoad>
                 </Scripts>
-            </PlayerModel>
+                <Anchors>
+                    <Anchor point="TOPLEFT">
+                        <Offset>
+                            <AbsDimension x="12" y="-15"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Layers>
+                    <Layer level="BACKGROUND">
+                        <Texture name="$parentBackgroundTopLeft" parentKey="BackgroundTopLeft">
+                            <Size x="212" y="245"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" x="38" y="10"/>
+                            </Anchors>
+                            <TexCoords left="0.171875" right="1" top="0.0392156862745098" bottom="1"/>
+                        </Texture>
+                        <Texture name="$parentBackgroundTopRight" parentKey="BackgroundTopRight">
+                            <Size x="19" y="245"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeTo="$parentBackgroundTopLeft" relativePoint="TOPRIGHT"/>
+                            </Anchors>
+                            <TexCoords left="0" right="0.296875" top="0.0392156862745098" bottom="1"/>
+                        </Texture>
+                        <Texture name="$parentBackgroundBotLeft" parentKey="BackgroundBotLeft">
+                            <Size x="212" y="128"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeTo="$parentBackgroundTopLeft"
+                                        relativePoint="BOTTOMLEFT"/>
+                            </Anchors>
+                            <TexCoords left="0.171875" right="1" top="0" bottom="1"/>
+                        </Texture>
+                        <Texture name="$parentBackgroundBotRight" parentKey="BackgroundBotRight">
+                            <Size x="19" y="128"/>
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeTo="$parentBackgroundTopLeft"
+                                        relativePoint="BOTTOMRIGHT"/>
+                            </Anchors>
+                            <TexCoords left="0" right="0.296875" top="0" bottom="1"/>
+                        </Texture>
+                    </Layer>
+                    <Layer level="BORDER">
+                        <Texture name="$parentBackgroundOverlay" parentKey="BackgroundOverlay">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeTo="$parentBackgroundTopLeft"/>
+                                <Anchor point="BOTTOMRIGHT" relativeTo="$parentBackgroundBotRight" x="0" y="45"/>
+                            </Anchors>
+                            <Color r="0" g="0" b="0"/>
+                        </Texture>
+                    </Layer>
+                    <Layer level="OVERLAY">
+                        <Texture name="PaperDollInnerBorderTopLeft" inherits="Char-Corner-UpperLeft">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.$parent.$parent.Inset" x="46" y="-4"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture name="PaperDollInnerBorderTopRight" inherits="Char-Corner-UpperRight">
+                            <Anchors>
+                                <Anchor point="TOPRIGHT" relativeKey="$parent.$parent.$parent.Inset" x="-47" y="-4"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture name="PaperDollInnerBorderBottomLeft" inherits="Char-Corner-LowerLeft">
+                            <Anchors>
+                                <Anchor point="BOTTOMLEFT" relativeKey="$parent.$parent.$parent.Inset" x="46" y="31"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture name="PaperDollInnerBorderBottomRight" inherits="Char-Corner-LowerRight">
+                            <Anchors>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.$parent.$parent.Inset" x="-47" y="31"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture name="PaperDollInnerBorderLeft" inherits="Char-Inner-Left">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeTo="PaperDollInnerBorderTopLeft"
+                                        relativePoint="BOTTOMLEFT" x="-1"/>
+                                <Anchor point="BOTTOMLEFT" relativeTo="PaperDollInnerBorderBottomLeft"
+                                        relativePoint="TOPLEFT" x="-1"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture name="PaperDollInnerBorderRight" inherits="Char-Inner-Right">
+                            <Anchors>
+                                <Anchor point="TOPRIGHT" relativeTo="PaperDollInnerBorderTopRight"
+                                        relativePoint="BOTTOMRIGHT" x="1"/>
+                                <Anchor point="BOTTOMRIGHT" relativeTo="PaperDollInnerBorderBottomRight"
+                                        relativePoint="TOPRIGHT" x="1"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture name="PaperDollInnerBorderTop" inherits="Char-Inner-Top">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeTo="PaperDollInnerBorderTopLeft"
+                                        relativePoint="TOPRIGHT" y="1"/>
+                                <Anchor point="TOPRIGHT" relativeTo="PaperDollInnerBorderTopRight"
+                                        relativePoint="TOPLEFT" y="1"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture name="PaperDollInnerBorderBottom" inherits="Char-Inner-Bottom">
+                            <Anchors>
+                                <Anchor point="BOTTOMLEFT" relativeTo="PaperDollInnerBorderBottomLeft"
+                                        relativePoint="BOTTOMRIGHT" y="-1"/>
+                                <Anchor point="BOTTOMRIGHT" relativeTo="PaperDollInnerBorderBottomRight"
+                                        relativePoint="BOTTOMLEFT" y="-1"/>
+                            </Anchors>
+                        </Texture>
+                        <Texture name="PaperDollInnerBorderBottom2" inherits="Char-Inner-Bottom">
+                            <Anchors>
+                                <Anchor point="BOTTOMLEFT" relativeKey="$parent.$parent.$parent.Inset" y="27"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.$parent.$parent.Inset" y="27"/>
+                            </Anchors>
+                        </Texture>
+                    </Layer>
+                </Layers>
+            </DressUpModel>
+            <CheckButton name="$parentAutoEquip" parentKey="AutoEquip" inherits="OptionsCheckButtonTemplate" frameLevel="10">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="45" y="0" relativeTo="$parentModel" relativePoint="TOPLEFT"/>
+                </Anchors>
+
+                <Scripts>
+                    <OnClick>
+                        FishMaster.db.char.autoLure = not FishMaster.db.char.autoLure;
+                    </OnClick>
+                    <OnUpdate>
+                        if FishMaster.db.char.autoLure then
+                            self:SetChecked(true);
+                        else
+                            self:SetChecked(false);
+                        end
+                    </OnUpdate>
+                </Scripts>
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <FontString name="$parentText" parentKey="Text" inherits="GameFontNormalSmall" text="Auto Lure">
+                            <Anchors>
+                                <Anchor point="LEFT" relativePoint="RIGHT">
+                                    <Offset>
+                                        <AbsDimension x="2" y="0"/>
+                                    </Offset>
+                                </Anchor>
+                            </Anchors>
+                        </FontString>
+                    </Layer>
+                </Layers>
+            </CheckButton>
         </Frames>
     </Frame>
 </Ui>

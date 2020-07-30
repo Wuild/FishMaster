@@ -1,5 +1,7 @@
 local name, _FishMaster = ...;
 
+--_FishMaster.callbacks = LibStub("CallbackHandler-1.0"):New(_FishMaster)
+
 function dump(o)
     if type(o) == 'table' then
         local s = '{ '
@@ -24,8 +26,9 @@ local minimapIcon = LibStub("LibDataBroker-1.1"):NewDataObject("FishMasterMinima
         if button == "LeftButton" then
             FishMaster:Toggle();
         elseif button == "RightButton" then
-            InterfaceOptionsFrame_OpenToCategory(name)
-            InterfaceOptionsFrame_OpenToCategory(name) -- run it again to set the correct tab
+            FishMaster.equipment:Toggle()
+            --InterfaceOptionsFrame_OpenToCategory(name)
+            --InterfaceOptionsFrame_OpenToCategory(name) -- run it again to set the correct tab
         end
     end,
 
@@ -47,8 +50,6 @@ function FishMaster:CreateMainButton()
     button:SetSize(size, size)
     button:SetScale(1)
     button:SetAlpha(1)
-
-
 
     button:SetScript("OnEnter", function(self)
         GameTooltip:ClearLines();
@@ -206,19 +207,31 @@ function FishMaster:CreateLureButtons()
 end
 
 function FishMaster:Toggle()
+    FishMaster.db.char.enabled = not FishMaster.db.char.enabled;
+    FishMaster:CheckEnabled();
+    FishMaster:ToggleGear();
+end
+
+function FishMaster:ToggleGear()
     if FishMaster.db.char.enabled then
-        for key, item in pairs(FishMaster.db.char.storedOutfit) do
-            EquipItemByName(item, key);
-            FishMaster.db.char.storedOutfit[key] = nil;
-            FishMaster.db.char.enabled = false;
+        for key, slot in pairs(FishMaster:SlotInfo()) do
+            FishMaster.db.char.storedOutfit[slot.name] = GetInventoryItemID("player", slot.id);
+        end
+
+        for slot, item in pairs(FishMaster.db.char.outfit) do
+            local s = FishMaster:FindSlotInfo(slot);
+            if s and FishMaster:FindItemInBags(item) then
+                EquipItemByName(item, s.id);
+            end
         end
     else
-        local pole = FishMaster:FindBestPole();
-        if pole then
-            FishMaster.db.char.storedOutfit[INVSLOT_MAINHAND] = GetInventoryItemID("player", INVSLOT_MAINHAND);
-            FishMaster.db.char.storedOutfit[INVSLOT_OFFHAND] = GetInventoryItemID("player", INVSLOT_OFFHAND);
-            EquipItemByName(FishMaster:FindBestPole(), INVSLOT_MAINHAND);
-            FishMaster.db.char.enabled = true;
+        for key, slot in pairs(FishMaster:SlotInfo()) do
+            --FishMaster.db.char.storedOutfit[slot.name] = GetInventoryItemID("player", slot.id);
+            --
+            --print(s.name, GetItemInfo(itemID))
+            if GetInventoryItemID("player", slot.id) ~= FishMaster.db.char.storedOutfit[slot.name] then
+                EquipItemByName(FishMaster.db.char.storedOutfit[slot.name], slot.id);
+            end
         end
     end
 end
@@ -229,8 +242,7 @@ function FishMaster:GatherSlash(input)
         FishMaster:Toggle()
         return ;
     elseif input == "config" then
-        InterfaceOptionsFrame_OpenToCategory(name)
-        InterfaceOptionsFrame_OpenToCategory(name) -- run it again to set the correct tab
+        FishMaster.equipment:Toggle()
     end
 end
 
@@ -238,17 +250,29 @@ function FishMaster:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("FishMasterSettings", _FishMaster.configsDefaults, true)
     self.minimap = LibStub("LibDBIcon-1.0")
     FishMaster.minimap:Register("FishMasterMinimapIcon", minimapIcon, self.db.profile.minimap)
-    FishMaster:ScheduleRepeatingTimer("CheckEnabled", 1)
 
     FishMaster:RegisterEvent("PLAYER_EQUIPMENT_CHANGED", "EventHandler")
     FishMaster:RegisterEvent("BAG_UPDATE", "EventHandler")
     FishMaster:RegisterEvent("LOOT_OPENED", "EventHandler")
+    FishMaster:RegisterEvent("SKILL_LINES_CHANGED", "EventHandler")
     FishMaster:RegisterEvent("PLAYER_ENTERING_WORLD", "EventHandler")
+
+    FishMaster:On("OnItemSlotChange", "ItemSlotChange")
 
     FishMaster:RegisterChatCommand("fmaster", "GatherSlash")
     FishMaster:RegisterChatCommand("fishmaster", "GatherSlash")
 
+    if FishMaster.db.char.firstRun then
+        local pole = FishMaster:FindBestPole();
+        if pole then
+            FishMaster.db.char.outfit["MainHandSlot"] = pole;
+        end
+        FishMaster.db.char.firstRun = false;
+    end
+
     FishMaster:CreateMainButton()
     FishMaster:CreateLureButtons()
+    FishMaster.equipment:OnLoad()
     FishMaster:CheckEnabled();
+
 end

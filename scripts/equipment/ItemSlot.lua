@@ -2,6 +2,7 @@ local name, _FishMaster = ...;
 
 FishMaster.ItemSlot = {}
 
+
 function FishMaster.ItemSlot:Clear(self)
     button.name = nil;
     button.item = nil;
@@ -10,7 +11,7 @@ function FishMaster.ItemSlot:Clear(self)
 end
 
 function FishMaster.ItemSlot:OnLoad(self)
-    local id, textureName = GetInventorySlotInfo(self:GetAttribute("slot") .. "Slot");
+    local id, textureName = GetInventorySlotInfo(self:GetAttribute("slot"));
     self:SetID(id);
     self.backgroundTextureName = textureName;
     SetItemButtonTexture(self, self.backgroundTextureName);
@@ -19,16 +20,27 @@ function FishMaster.ItemSlot:OnLoad(self)
     self:RegisterEvent("CURSOR_UPDATE");
     self:SetFrameLevel(self:GetFrameLevel() + 3);
 
-
     if FishMaster.db.char.outfit[self:GetAttribute("slot")] then
         self:SetAttribute("itemID", FishMaster.db.char.outfit[self:GetAttribute("slot")]);
-        FishMaster.ItemSlot:OnChange(self);
+        local itemID = self:GetAttribute("itemID");
+        if (itemID) then
+            local name, link, _, _, _, _, _, _, _, texture = GetItemInfo(itemID);
+            SetItemButtonTexture(self, texture);
+            self:SetAttribute("item", { GetItemInfo(itemID) })
+        else
+            SetItemButtonTexture(self, self.backgroundTextureName);
+            self:SetAttribute("item", nil)
+        end
     end
-
 end
 
-function FishMaster.ItemSlot:OnClick(self)
-    --print(self:GetAttribute("slot"))
+function FishMaster.ItemSlot:OnClick(self, button)
+    if button == "LeftButton" then
+        FishMaster.ItemSlot:OnReceiveDrag(self)
+    elseif button == "RightButton" then
+        self:SetAttribute("itemID", nil);
+        FishMaster.ItemSlot:OnChange(self)
+    end
 end
 
 function FishMaster.ItemSlot:Tooltip(button)
@@ -37,6 +49,12 @@ function FishMaster.ItemSlot:Tooltip(button)
 
         GameTooltip:SetOwner(button, "ANCHOR_LEFT");
         GameTooltip:SetHyperlink(link);
+        GameTooltip:Show();
+    else
+        local slot = FishMaster:FindSlotInfo(button:GetAttribute("slot"))
+
+        GameTooltip:SetOwner(button, "ANCHOR_RIGHT");
+        GameTooltip:SetText(slot.tooltip);
         GameTooltip:Show();
     end
 end
@@ -55,7 +73,7 @@ function FishMaster.ItemSlot:OnLeave(self)
 end
 
 function FishMaster.ItemSlot:OnUpdate(self)
-    --print(self)
+
 end
 
 function FishMaster.ItemSlot:OnChange(self)
@@ -63,12 +81,14 @@ function FishMaster.ItemSlot:OnChange(self)
     if (itemID) then
         local name, link, _, _, _, _, _, _, _, texture = GetItemInfo(itemID);
         SetItemButtonTexture(self, texture);
+        self:SetAttribute("item", { GetItemInfo(itemID) })
     else
         SetItemButtonTexture(self, self.backgroundTextureName);
+        self:SetAttribute("item", nil)
     end
 
-    FishMaster.db.char.outfit[self:GetAttribute("slot")] = itemID;
-
+    FishMaster:Trigger("OnItemSlotChange", self:GetAttribute("slot"), itemID)
+    FishMaster:UpdateModel(self:GetParent());
     if self.hovering then
         FishMaster.ItemSlot:Tooltip(self)
     end
@@ -78,7 +98,7 @@ function FishMaster.ItemSlot:OnReceiveDrag(button)
     local parent = button:GetParent();
     local pname = parent:GetName();
 
-    local slotnames = FishMaster:GetSlotInfo();
+    local slotnames = FishMaster.ItemSlot.slotInfo;
     if (not FishMaster:CursorCanGoInSlot(button)) then
         button = nil;
         for _, si in ipairs(slotnames) do

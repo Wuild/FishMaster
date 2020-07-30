@@ -1,5 +1,7 @@
 local name, _FishMaster = ...;
-FishMaster = LibStub("AceAddon-3.0"):NewAddon("FishMaster", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0")
+local CallbackHandler = LibStub("CallbackHandler-1.0")
+
+FishMaster = LibStub("AceAddon-3.0"):NewAddon("FishMaster", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "FishEvents-1.0")
 
 _FishMaster.name = name;
 _FishMaster.version = GetAddOnMetadata(name, "version");
@@ -73,6 +75,8 @@ _FishMaster.lures = {
 _FishMaster.configsDefaults = {
     global = {},
     char = {
+        firstRun = true,
+        enabled = false,
         autoLure = false,
         outfit = {},
         storedOutfit = {},
