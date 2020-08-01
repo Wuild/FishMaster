@@ -100,15 +100,14 @@ function FishMaster.equipment:OnFrameLoad(self)
 end
 
 function FishMaster.equipment:Open()
-    _G[frameName .. "Outfit"].RankFrame.RankText:SetText(FishMaster:translate("fishing"))
-    _G[frameName .. "Outfit"].RankFrame.RankLevel:SetText(FishMaster:GetProfessionLevel("fishing") .. "/" .. 300)
-    _G[frameName .. "Outfit"].RankFrame:SetValue(FishMaster:GetProfessionLevel("fishing"));
+    _G[frameName].RankFrame.RankText:SetText(FishMaster:translate("fishing"))
+    _G[frameName].RankFrame.RankLevel:SetText(FishMaster:GetProfessionLevel("fishing") .. "/" .. 300)
+    _G[frameName].RankFrame:SetValue(FishMaster:GetProfessionLevel("fishing"));
     _G[frameName .. "Outfit"].AutoEquip.Text:SetText(FishMaster:translate("settings.autoLure"));
 
     SetPortraitTexture(_G[frameName .. "Portrait"], "player")
     _G[frameName .. "TitleText"]:SetText(_FishMaster.name);
 
-    FishMaster:UpdateModel(_G[frameName .. "Outfit"])
     ShowUIPanel(_FishMaster.frame);
 end
 

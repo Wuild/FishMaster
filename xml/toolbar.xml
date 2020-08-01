@@ -1,0 +1,173 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+    <Script file="scripts/toolbar.lua"/>
+
+    <Button name="FishMaster_ToolbarItem" parentArray="lures" registerForClicks="AnyUp" inherits="FMUIItemTemplate" virtual="true">
+        <Anchors>
+            <Anchor point="LEFT" relativeTo="$parentCast" relativePoint="TOPRIGHT" x="3" y="-16"/>
+        </Anchors>
+        <Size x="32" y="32"/>
+        <Layers>
+            <Layer level="BORDER">
+                <Texture name="$parentIconTexture" parentKey="icon"/>
+            </Layer>
+        </Layers>
+        <Scripts>
+            <OnEnter>
+                GameTooltip:ClearLines();
+                GameTooltip:SetOwner(self, "ANCHOR_LEFT");
+
+                local name, link = GetItemInfo(self:GetAttribute("item"))
+
+                GameTooltip:SetHyperlink(link);
+                GameTooltip:Show();
+            </OnEnter>
+            <OnLeave>
+                GameTooltip:ClearLines();
+                GameTooltip:Hide();
+            </OnLeave>
+        </Scripts>
+    </Button>
+
+    <Frame name="FishMaster_Toolbar" registerForDrag="LeftButton" movable="true" parent="UIParent" clampToScreen="true"
+           frameStrata="BACKGROUND" hidden="true">
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
+        <Size x="200" y="54"/>
+
+        <Scripts>
+            <OnLoad>
+                self:RegisterForDrag("LeftButton");
+                self:RegisterEvent("UNIT_AURA");
+                self:RegisterEvent("BAG_UPDATE");
+                self:RegisterEvent("LOOT_OPENED");
+                self:RegisterEvent("PLAYER_EQUIPMENT_CHANGED");
+                FishMaster.toolbar.OnLoad();
+            </OnLoad>
+            <OnDragStart>self:StartMoving();</OnDragStart>
+            <OnDragStop>self:StopMovingOrSizing();</OnDragStop>
+            <OnEvent>
+                FishMaster.toolbar:OnEvent(self, event, ...)
+            </OnEvent>
+        </Scripts>
+        <Frames>
+
+            <Frame parentKey="title" inherits="FMUIText">
+                <Anchors>
+                    <Anchor point="TOPLEFT"/>
+                </Anchors>
+            </Frame>
+
+            <Button name="$parentCast" parentKey="cast" registerForClicks="AnyUp" inherits="FMUIItemTemplate">
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" x="5"/>
+                </Anchors>
+                <Scripts>
+                </Scripts>
+                <Size x="42" y="42"/>
+                <Layers>
+                    <Layer level="BORDER">
+                        <Texture name="$parentIconTexture" parentKey="icon" file="Interface/Icons/inv_fishingpole_02"/>
+                    </Layer>
+                </Layers>
+            </Button>
+
+
+            <Button name="$parentLure1" parentArray="lures" registerForClicks="AnyUp" inherits="FishMaster_ToolbarItem">
+                <Attributes>
+                    <Attribute name="item" value="6529"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentCast" relativePoint="TOPRIGHT" x="3" y="-16"/>
+                </Anchors>
+                <Size x="32" y="32"/>
+                <Layers>
+                    <Layer level="BORDER">
+                        <Texture name="$parentIconTexture" parentKey="icon" file="Interface/Icons/inv_misc_orb_03"/>
+                    </Layer>
+                </Layers>
+            </Button>
+
+
+            <Button name="$parentLure2" parentArray="lures" registerForClicks="AnyUp" inherits="FishMaster_ToolbarItem">
+                <Attributes>
+                    <Attribute name="item" value="6530"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentLure1" relativePoint="TOPRIGHT" x="3" y="-16"/>
+                </Anchors>
+                <Size x="32" y="32"/>
+                <Layers>
+                    <Layer level="BORDER">
+                        <Texture name="$parentIconTexture" parentKey="icon"
+                                 file="Interface/Icons/inv_misc_monstertail_03"/>
+                    </Layer>
+                </Layers>
+            </Button>
+
+            <Button name="$parentLure3" parentArray="lures" registerForClicks="AnyUp" inherits="FishMaster_ToolbarItem">
+                <Attributes>
+                    <Attribute name="item" value="6811"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentLure2" relativePoint="TOPRIGHT" x="3" y="-16"/>
+                </Anchors>
+                <Size x="32" y="32"/>
+                <Layers>
+                    <Layer level="BORDER">
+                        <Texture name="$parentIconTexture" parentKey="icon"
+                                 file="Interface/Icons/inv_misc_spyglass_01"/>
+                    </Layer>
+                </Layers>
+            </Button>
+
+            <Button name="$parentLure4" parentArray="lures" registerForClicks="AnyUp" inherits="FishMaster_ToolbarItem">
+                <Attributes>
+                    <Attribute name="item" value="6532"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentLure3" relativePoint="TOPRIGHT" x="3" y="-16"/>
+                </Anchors>
+                <Size x="32" y="32"/>
+                <Layers>
+                    <Layer level="BORDER">
+                        <Texture name="$parentIconTexture" parentKey="icon"
+                                 file="Interface/Icons/inv_misc_gem_variety_02"/>
+                    </Layer>
+                </Layers>
+            </Button>
+
+            <Button name="$parentLure5" parentArray="lures" registerForClicks="AnyUp" inherits="FishMaster_ToolbarItem">
+                <Attributes>
+                    <Attribute name="item" value="7307"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentLure4" relativePoint="TOPRIGHT" x="3" y="-16"/>
+                </Anchors>
+                <Size x="32" y="32"/>
+                <Layers>
+                    <Layer level="BORDER">
+                        <Texture name="$parentIconTexture" parentKey="icon"
+                                 file="Interface/Icons/inv_misc_monstertail_03"/>
+                    </Layer>
+                </Layers>
+            </Button>
+
+            <Button name="$parentLure6" parentArray="lures" registerForClicks="AnyUp" inherits="FishMaster_ToolbarItem">
+                <Attributes>
+                    <Attribute name="item" value="6533"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentLure5" relativePoint="TOPRIGHT" x="3" y="-16"/>
+                </Anchors>
+                <Size x="32" y="32"/>
+                <Layers>
+                    <Layer level="BORDER">
+                        <Texture name="$parentIconTexture" parentKey="icon" file="Interface/Icons/inv_misc_food_26"/>
+                    </Layer>
+                </Layers>
+            </Button>
+        </Frames>
+    </Frame>
+
+</Ui>

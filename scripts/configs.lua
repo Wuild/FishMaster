@@ -77,7 +77,9 @@ _FishMaster.configsDefaults = {
     char = {
         firstRun = true,
         enabled = false,
-        autoLure = false,
+        autoLure = true,
+        lowestLure = true,
+        autoEquip = true,
         outfit = {},
         storedOutfit = {},
         point = {
@@ -87,10 +89,23 @@ _FishMaster.configsDefaults = {
             x = 0,
             y = 0,
         },
-        audio = {
-            enabled = false
+        tracker = {
+            enabled = true,
+            hideTrash = true,
+            session = true
         },
-        defaultAudio = {}
+        audio = {
+            enabled = false,
+            force = false,
+            volume = 1,
+        },
+        loot = {},
+        defaultAudio = {
+            Sound_EnableAllSound = nil,
+            Sound_EnableSFX = nil,
+            Sound_MasterVolume = nil,
+            Sound_SFXVolume = nil
+        }
     },
     profile = {
 

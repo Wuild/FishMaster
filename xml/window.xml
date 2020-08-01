@@ -1,0 +1,132 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+    <Frame name="FishMasterTopFrame" inherits="ButtonFrameTemplate" toplevel="true" movable="true"
+           enableMouse="true"
+           hidden="true" virtual="true">
+        <Attributes>
+            <Attribute name="UIPanelLayout-defined" type="boolean" value="true"/>
+            <Attribute name="UIPanelLayout-enabled" type="boolean" value="true"/>
+            <Attribute name="UIPanelLayout-area" type="string" value="left"/>
+            <Attribute name="UIPanelLayout-pushable" type="number" value="6"/>
+            <Attribute name="UIPanelLayout-whileDead" type="boolean" value="true"/>
+        </Attributes>
+
+        <Scripts>
+            <OnLoad>
+                PanelTemplates_SetNumTabs(self, 2);
+                PanelTemplates_SetTab(self, 1);
+            </OnLoad>
+        </Scripts>
+
+
+        <Frames>
+            <StatusBar parentKey="RankFrame" drawLayer="BACKGROUND" minValue="0" maxValue="300" defaultValue="0">
+                <Size x="237" y="14"/>
+                <Anchors>
+                    <Anchor point="TOP" x="20" y="-35"/>
+                </Anchors>
+
+                <Layers>
+                    <Layer level="ARTWORK">
+                        <FontString name="$parentSkillTitle" parentKey="RankText" inherits="GameFontNormalSmall"
+                                    justifyH="CENTER" text="Fishing">
+                            <Size x="0" y="9"/>
+                            <Anchors>
+                                <Anchor point="LEFT" x="5" y="1"/>
+                            </Anchors>
+                        </FontString>
+                        <FontString parentKey="RankLevel" inherits="WhiteNormalNumberFont" justifyH="CENTER"
+                                    text="1/300">
+                            <Size x="0" y="9"/>
+                            <Anchors>
+                                <Anchor point="LEFT" x="10" relativeTo="$parentSkillTitle" relativePoint="RIGHT"/>
+                            </Anchors>
+                        </FontString>
+                        <Texture parentKey="BorderLeft"
+                                 file="Interface\PaperDollInfoFrame\UI-Character-Skills-BarBorder">
+                            <Size x="8" y="17"/>
+
+                            <Anchors>
+                                <Anchor point="LEFT" x="-3" y="0"/>
+                            </Anchors>
+                            <TexCoords left="0.007843" right="0.043137" top="0.193548" bottom="0.774193"/>
+                        </Texture>
+                        <Texture parentKey="BorderRight"
+                                 file="Interface\PaperDollInfoFrame\UI-Character-Skills-BarBorder">
+                            <Size x="8" y="17"/>
+
+                            <Anchors>
+                                <Anchor point="RIGHT" x="4" y="0"/>
+                            </Anchors>
+                            <TexCoords left="0.043137" right="0.007843" top="0.193548" bottom="0.774193"/>
+                        </Texture>
+                        <Texture parentKey="BorderMid"
+                                 file="Interface\PaperDollInfoFrame\UI-Character-Skills-BarBorder">
+                            <Anchors>
+                                <Anchor point="TOPLEFT" relativeKey="$parent.BorderLeft" relativePoint="TOPRIGHT"/>
+                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.BorderRight"
+                                        relativePoint="BOTTOMLEFT"/>
+                            </Anchors>
+                            <TexCoords left="0.113726" right="0.1490196" top="0.193548" bottom="0.774193"/>
+                        </Texture>
+                    </Layer>
+                    <Layer level="BACKGROUND">
+                        <Texture parentKey="Background">
+                            <Color r="0.0" g="0.0" b="0.75" a="0.1"/>
+                        </Texture>
+                    </Layer>
+                </Layers>
+                <BarTexture parentKey="Bar" file="Interface\PaperDollInfoFrame\UI-Character-Skills-Bar"/>
+                <BarColor r="0.0" g="0.0" b="1.0" a=".5"/>
+            </StatusBar>
+
+            <Frame parentKey="Outfit" hidden="false" name="$parentOutfit" inherits="FMOutfitDisplayFrame">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="FishMasterFrameInset" relativePoint="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT" relativeTo="FishMasterFrameInset" relativePoint="BOTTOMRIGHT"/>
+                </Anchors>
+            </Frame>
+            <Frame parentKey="Settings" hidden="true" name="$parentSettings" inherits="FMSettingsTabTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="FishMasterFrameInset" relativePoint="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT" relativeTo="FishMasterFrameInset" relativePoint="BOTTOMRIGHT"/>
+                </Anchors>
+            </Frame>
+
+            <Button name="$parentTab1" inherits="CharacterFrameTabButtonTemplate" id="1" text="Equipment">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT">
+                        <Offset>
+                            <AbsDimension x="11" y="2"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+
+                    <OnClick function="FishMasterFrameTab_OnClick"/>
+                    <OnEnter>
+                        GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+                        GameTooltip:SetText(self:GetText(), 1.0,1.0,1.0 );
+                    </OnEnter>
+                    <OnLeave function="GameTooltip_Hide"/>
+                </Scripts>
+            </Button>
+            <Button name="$parentTab2" inherits="CharacterFrameTabButtonTemplate" id="2" text="Settings">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentTab1" relativePoint="RIGHT">
+                        <Offset>
+                            <AbsDimension x="-16" y="0"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick function="FishMasterFrameTab_OnClick"/>
+                    <OnEnter>
+                        GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+                        GameTooltip:SetText(self:GetText(), 1.0,1.0,1.0 );
+                    </OnEnter>
+                    <OnLeave function="GameTooltip_Hide"/>
+                </Scripts>
+            </Button>
+        </Frames>
+    </Frame>
+</Ui>

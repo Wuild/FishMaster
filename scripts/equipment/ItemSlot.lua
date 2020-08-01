@@ -72,10 +72,6 @@ function FishMaster.ItemSlot:OnLeave(self)
     self.hovering = false;
 end
 
-function FishMaster.ItemSlot:OnUpdate(self)
-
-end
-
 function FishMaster.ItemSlot:OnChange(self)
     local itemID = self:GetAttribute("itemID");
     if (itemID) then

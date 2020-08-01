@@ -19,9 +19,6 @@
             <OnLeave>
                 FishMaster.ItemSlot:OnLeave(self)
             </OnLeave>
-            <OnUpdate>
-                FishMaster.ItemSlot:OnUpdate(self)
-            </OnUpdate>
             <OnReceiveDrag>
                 FishMaster.ItemSlot:OnReceiveDrag(self)
             </OnReceiveDrag>

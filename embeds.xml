@@ -12,10 +12,12 @@
     <Include file="libraries\AceConfig-3.0\AceConfig-3.0.xml"/>
     <Include file="libraries\AceComm-3.0\AceComm-3.0.xml"/>
     <Include file="libraries\AceSerializer-3.0\AceSerializer-3.0.xml"/>
-    <Include file="xml/outfit.xml"/>
-    <Include file="xml/ItemSlot.xml"/>
-    <Include file="xml/button.xml"/>
 
+    <Include file="xml/tabs/outfit.xml"/>
+    <Include file="xml/tabs/settings.xml"/>
+
+    <Include file="xml/UI/ItemSlot.xml"/>
+    <Include file="xml/UI/button.xml"/>
 
     <Script file="scripts/events.lua"/>
     <Script file="scripts/configs.lua"/>
@@ -28,35 +30,19 @@
     <Script file="locales\ruRU.lua"/>
     <Script file="locales\zhCN.lua"/>
 
-    <Script file="scripts/settings/general.lua"/>
-    <Script file="scripts/settings/audio.lua"/>
-    <Script file="scripts/settings.lua"/>
-
-
     <Script file="scripts/methods.lua"/>
 
     <Script file="scripts/equipment.lua"/>
     <Script file="scripts/equipment/ItemSlot.lua"/>
-
     <Script file="scripts/main.lua"/>
 
-    <Frame name="FishMasterTopFrame" inherits="ButtonFrameTemplate" toplevel="true" movable="true" enableMouse="true"
-           hidden="true" virtual="true">
-        <Attributes>
-            <Attribute name="UIPanelLayout-defined" type="boolean" value="true"/>
-            <Attribute name="UIPanelLayout-enabled" type="boolean" value="true"/>
-            <Attribute name="UIPanelLayout-area" type="string" value="left"/>
-            <Attribute name="UIPanelLayout-pushable" type="number" value="6"/>
-            <Attribute name="UIPanelLayout-whileDead" type="boolean" value="true"/>
-        </Attributes>
+    <Include file="xml/window.xml"/>
+    <Include file="xml/tracker.xml"/>
+    <Include file="xml/toolbar.xml"/>
 
-        <Frames>
-            <Frame parentKey="Outfit" name="$parentOutfit" inherits="OutfitDisplayFrame">
-                <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="FishMasterFrameInset" relativePoint="TOPLEFT"/>
-                    <Anchor point="BOTTOMRIGHT" relativeTo="FishMasterFrameInset" relativePoint="BOTTOMRIGHT"/>
-                </Anchors>
-            </Frame>
-        </Frames>
+    <Frame name="FishMaster" enableMouse="false" parent="UIParent">
+        <Anchors>
+            <Anchor point="CENTER"/>
+        </Anchors>
     </Frame>
 </Ui>

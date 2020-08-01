@@ -3,73 +3,16 @@
     xsi:schemaLocation="http://www.blizzard.com/wow/ui/FrameXML\UI.xsd">
 
 
-    <Frame name="OutfitDisplayFrame" enableMouse="true" useParentLevel="true" virtual="True">
+    <Frame name="FMOutfitDisplayFrame" enableMouse="true" useParentLevel="true" virtual="true">
         <Scripts>
             <OnLoad>
                 FishMaster.equipment:OnFrameLoad(self)
             </OnLoad>
+            <OnShow>
+                FishMaster:UpdateModel()
+            </OnShow>
         </Scripts>
         <Frames>
-            <StatusBar parentKey="RankFrame" drawLayer="BACKGROUND" minValue="0" maxValue="300" defaultValue="0">
-                <Size x="237" y="14"/>
-                <Anchors>
-                    <Anchor point="TOP" x="20" y="25"/>
-                </Anchors>
-
-                <Layers>
-                    <Layer level="ARTWORK">
-                        <FontString name="$parentSkillTitle" parentKey="RankText" inherits="GameFontNormalSmall"
-                                    justifyH="CENTER" text="Fishing">
-                            <Size x="0" y="9"/>
-                            <Anchors>
-                                <Anchor point="LEFT" x="5" y="1"/>
-                            </Anchors>
-                        </FontString>
-                        <FontString parentKey="RankLevel" inherits="WhiteNormalNumberFont" justifyH="CENTER"
-                                    text="1/300">
-                            <Size x="0" y="9"/>
-                            <Anchors>
-                                <Anchor point="LEFT" x="10" relativeTo="$parentSkillTitle" relativePoint="RIGHT"/>
-                            </Anchors>
-                        </FontString>
-                        <Texture parentKey="BorderLeft"
-                                 file="Interface\PaperDollInfoFrame\UI-Character-Skills-BarBorder">
-                            <Size x="8" y="17"/>
-
-                            <Anchors>
-                                <Anchor point="LEFT" x="-3" y="0"/>
-                            </Anchors>
-                            <TexCoords left="0.007843" right="0.043137" top="0.193548" bottom="0.774193"/>
-                        </Texture>
-                        <Texture parentKey="BorderRight"
-                                 file="Interface\PaperDollInfoFrame\UI-Character-Skills-BarBorder">
-                            <Size x="8" y="17"/>
-
-                            <Anchors>
-                                <Anchor point="RIGHT" x="4" y="0"/>
-                            </Anchors>
-                            <TexCoords left="0.043137" right="0.007843" top="0.193548" bottom="0.774193"/>
-                        </Texture>
-                        <Texture parentKey="BorderMid"
-                                 file="Interface\PaperDollInfoFrame\UI-Character-Skills-BarBorder">
-                            <Anchors>
-                                <Anchor point="TOPLEFT" relativeKey="$parent.BorderLeft" relativePoint="TOPRIGHT"/>
-                                <Anchor point="BOTTOMRIGHT" relativeKey="$parent.BorderRight"
-                                        relativePoint="BOTTOMLEFT"/>
-                            </Anchors>
-                            <TexCoords left="0.113726" right="0.1490196" top="0.193548" bottom="0.774193"/>
-                        </Texture>
-                    </Layer>
-                    <Layer level="BACKGROUND">
-                        <Texture parentKey="Background">
-                            <Color r="0.0" g="0.0" b="0.75" a="0.1"/>
-                        </Texture>
-                    </Layer>
-                </Layers>
-                <BarTexture parentKey="Bar" file="Interface\PaperDollInfoFrame\UI-Character-Skills-Bar"/>
-                <BarColor r="0.0" g="0.0" b="1.0" a=".5"/>
-            </StatusBar>
-
             <Button name="$parentHead" inherits="ItemSlotButtonLeftTemplate">
                 <Attributes>
                     <Attribute name="slot" value="HeadSlot"/>
@@ -452,13 +395,13 @@
                     <OnClick>
                         FishMaster.db.char.autoLure = not FishMaster.db.char.autoLure;
                     </OnClick>
-                    <OnUpdate>
+                    <OnShow>
                         if FishMaster.db.char.autoLure then
                             self:SetChecked(true);
                         else
                             self:SetChecked(false);
                         end
-                    </OnUpdate>
+                    </OnShow>
                 </Scripts>
                 <Layers>
                     <Layer level="ARTWORK">
