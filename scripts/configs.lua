@@ -80,6 +80,7 @@ _FishMaster.configsDefaults = {
         autoLure = true,
         lowestLure = true,
         autoEquip = true,
+        easyCast = false,
         outfit = {},
         storedOutfit = {},
         point = {

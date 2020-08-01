@@ -83,32 +83,6 @@ function FishMaster:ToggleGear()
     end
 end
 
-function FishMaster:OnFishingBobber()
-    if (GameTooltip:IsVisible() and GameTooltip:GetAlpha() == 1) then
-        local text = GameTooltipTextLeft1:GetText() or self:GetLastTooltipText();
-        return (text and string.find(text, FishMaster:translate("fishing.bobber")));
-    end
-end
-
-function FishMaster:CheckForDoubleClick(button)
-    if (button and button ~= "RightButton") then
-        return false;
-    end
-    if (not LootFrame:IsShown() and self.lastClickTime) then
-        local pressTime = GetTime();
-        local doubleTime = pressTime - self.lastClickTime;
-        if ((doubleTime < 0.4) and (doubleTime > 0.05)) then
-            self.lastClickTime = nil;
-            return true;
-        end
-    end
-    self.lastClickTime = GetTime();
-    if (self:OnFishingBobber()) then
-        GameTooltip:Hide();
-    end
-    return false;
-end
-
 function FishMaster:GatherSlash(input)
     input = string.trim(input, " ");
     if input == "" or not input then
@@ -135,6 +109,7 @@ function FishMaster:OnInitialize()
     FishMaster:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP", "EventHandler")
     FishMaster:RegisterEvent("UNIT_SPELLCAST_START", "EventHandler")
     FishMaster:RegisterEvent("UNIT_SPELLCAST_STOP", "EventHandler")
+    FishMaster:RegisterEvent("VARIABLES_LOADED", "EventHandler")
 
     FishMaster:On("OnItemSlotChange", "ItemSlotChange")
 
@@ -164,4 +139,30 @@ function FishMaster:OnInitialize()
     FishMaster.equipment:OnLoad()
     FishMaster:CheckEnabled();
     FishMaster:SetAudio();
+
+    FishMaster:On("loaded", function()
+        FishMaster.tracker.Load()
+        FishMaster.tracker.SetInfo();
+    end);
+
+    FishMaster:On("LootAdded", function()
+        FishMaster.tracker.Update()
+        FishMaster.tracker.SetInfo();
+    end);
+
+    FishMaster:On("SkillLineChanged", function()
+        FishMaster.tracker.SetInfo();
+
+        local sName, sRank, numTempPoints, sMaxRank, skillModifier, sDescription = FishMaster:GetProfessionInfo(PROFESSIONS_FISHING)
+        if sName then
+            _G[_FishMaster.frame:GetName()].RankFrame.RankLevel:SetText(sRank .. "/" .. tostring(sMaxRank))
+            _G[_FishMaster.frame:GetName()].RankFrame:SetMinMaxValues(0, sMaxRank);
+            _G[_FishMaster.frame:GetName()].RankFrame:SetValue(sRank);
+        else
+            _G[_FishMaster.frame:GetName()].RankFrame.RankLevel:SetText(0 .. "/" .. 300)
+            _G[_FishMaster.frame:GetName()].RankFrame:SetMinMaxValues(0, 300);
+            _G[_FishMaster.frame:GetName()].RankFrame:SetValue(0);
+        end
+
+    end);
 end

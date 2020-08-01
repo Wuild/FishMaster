@@ -45,4 +45,12 @@
             <Anchor point="CENTER"/>
         </Anchors>
     </Frame>
+
+    <Frame name="FishMaster_CastFrame" hidden="true">
+        <Scripts>
+            <OnUpdate>
+                FishMaster:ResetOverride()
+            </OnUpdate>
+        </Scripts>
+    </Frame>
 </Ui>

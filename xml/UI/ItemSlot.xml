@@ -24,7 +24,7 @@
             </OnReceiveDrag>
         </Scripts>
     </Button>
-
+w
     <Button name="ItemSlotButtonLeftTemplate" inherits="ItemSlotButtonTemplate" virtual="true">
         <Layers>
             <Layer level="BORDER">

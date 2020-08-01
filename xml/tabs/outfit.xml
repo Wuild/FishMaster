@@ -386,7 +386,8 @@
                     </Layer>
                 </Layers>
             </DressUpModel>
-            <CheckButton name="$parentAutoEquip" parentKey="AutoEquip" inherits="OptionsCheckButtonTemplate" frameLevel="10">
+            <CheckButton name="$parentAutoEquip" parentKey="AutoEquip" inherits="OptionsCheckButtonTemplate"
+                         frameLevel="10">
                 <Anchors>
                     <Anchor point="TOPLEFT" x="45" y="0" relativeTo="$parentModel" relativePoint="TOPLEFT"/>
                 </Anchors>
@@ -394,12 +395,13 @@
                 <Scripts>
                     <OnClick>
                         FishMaster.db.char.autoLure = not FishMaster.db.char.autoLure;
+                        FishMaster:Trigger("Settings");
                     </OnClick>
                     <OnShow>
                         if FishMaster.db.char.autoLure then
-                            self:SetChecked(true);
+                        self:SetChecked(true);
                         else
-                            self:SetChecked(false);
+                        self:SetChecked(false);
                         end
                     </OnShow>
                 </Scripts>

@@ -111,10 +111,12 @@ end
 function FishMaster.tracker.SetInfo()
     local sName, sRank, numTempPoints, sMaxRank, skillModifier, sDescription = FishMaster:GetProfessionInfo(PROFESSIONS_FISHING)
 
-    if skillModifier > 0 then
-        FishMaster_Tracker.title.profession:SetText(string.format("%s: %s/%s %s", sName, sRank, sMaxRank, FishMaster:Colorize("+" .. skillModifier, "green")))
-    else
-        FishMaster_Tracker.title.profession:SetText(string.format("%s: %s/%s", sName, sRank, sMaxRank))
+    if sName then
+        if skillModifier and  skillModifier > 0 then
+            FishMaster_Tracker.title.profession:SetText(string.format("%s: %s/%s %s", sName, sRank, sMaxRank, FishMaster:Colorize("+" .. skillModifier, "green")))
+        else
+            FishMaster_Tracker.title.profession:SetText(string.format("%s: %s/%s", sName, sRank, sMaxRank))
+        end
     end
 
     local zone = GetMinimapZoneText();
@@ -134,19 +136,7 @@ end
 
 function FishMaster.tracker.OnLoad()
 
-    FishMaster:On("loaded", function()
-        FishMaster.tracker.Load()
-        FishMaster.tracker.SetInfo();
-    end);
 
-    FishMaster:On("LootAdded", function()
-        FishMaster.tracker.Update()
-        FishMaster.tracker.SetInfo();
-    end);
-
-    FishMaster:On("SkillLineChanged", function()
-        FishMaster.tracker.SetInfo();
-    end);
 end
 
 function FishMaster.tracker:OnUpdate(self)

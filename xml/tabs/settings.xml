@@ -2,6 +2,7 @@
 
     <Frame name="FMSettingsTabTemplate" enableMouse="true" useParentLevel="true" virtual="true">
         <Frames>
+
             <CheckButton name="$parentAutoLure" inherits="FMUICheckbox">
                 <Anchors>
                     <Anchor point="TOPLEFT" x="10" y="-10"/>
@@ -36,9 +37,37 @@
                 </Scripts>
             </CheckButton>
 
-            <CheckButton name="$parentGear" inherits="FMUICheckbox">
+            <CheckButton name="$parentEasyCast" inherits="FMUICheckbox">
                 <Anchors>
                     <Anchor point="TOPLEFT" relativeTo="$parentLowestLure" x="-20" relativePoint="BOTTOMLEFT"/>
+                </Anchors>
+
+                <Scripts>
+                    <OnShow>
+                        FishMaster:SetFrameText(self.Text, "settings.easyCast");
+                        self:SetChecked(FishMaster.db.char.easyCast);
+                    </OnShow>
+                    <OnEnter>
+                        GameTooltip:ClearLines();
+                        GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+                        GameTooltip:SetText(FishMaster:translate('settings.easyCast'));
+                        GameTooltip:AddLine(FishMaster:Colorize(FishMaster:translate('settings.easyCastDescription'), "white"));
+                        GameTooltip:Show();
+                    </OnEnter>
+                    <OnLeave>
+                        GameTooltip:ClearLines();
+                        GameTooltip:Hide();
+                    </OnLeave>
+                    <OnClick>
+                        FishMaster.db.char.easyCast = not FishMaster.db.char.easyCast;
+                        FishMaster:Trigger("Settings");
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+
+            <CheckButton name="$parentGear" inherits="FMUICheckbox">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentEasyCast" relativePoint="BOTTOMLEFT"/>
                 </Anchors>
 
                 <Scripts>

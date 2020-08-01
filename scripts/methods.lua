@@ -395,6 +395,65 @@ function FishMaster:FindLure(item)
     return nil;
 end
 
+function FishMaster:CheckCombat()
+    return InCombatLockdown() or UnitAffectingCombat("player") or UnitAffectingCombat("pet")
+end
+
+function FishMaster:CheckForDoubleClick(button)
+    if (button and button ~= "RightButton") then
+        return false;
+    end
+    if (not LootFrame:IsShown() and self.lastClickTime) then
+        local pressTime = GetTime();
+        local doubleTime = pressTime - self.lastClickTime;
+        if ((doubleTime < 0.4) and (doubleTime > 0.05)) then
+            self.lastClickTime = nil;
+            return true;
+        end
+    end
+    self.lastClickTime = GetTime();
+    return false;
+end
+
+local function SafeHookScript(frame, handlername, newscript)
+    local oldValue = frame:GetScript(handlername);
+    frame:SetScript(handlername, newscript);
+    return oldValue;
+end
+
+local function FM_OnMouseDown(...)
+    -- Only steal 'right clicks' (self is arg #1!)
+    local button = select(2, ...);
+    if (FishMaster.db.char.easyCast and not FishMaster:CheckCombat() and FishMaster:IsPoleEquipped()) then
+        if (FishMaster:CheckForDoubleClick(button)) then
+            -- We're stealing the mouse-up event, make sure we exit MouseLook
+            if (IsMouselooking()) then
+                MouselookStop();
+            end
+            FishMaster:SetOverride()
+        end
+        if (SavedWFOnMouseDown) then
+            SavedWFOnMouseDown(...);
+        end
+    end
+end
+
+function FishMaster:SetOverride()
+
+    local toolbar = _G['FishMaster_Toolbar'];
+    local button = toolbar.cast;
+    button:SetScript("PostClick", function()
+        FishMaster_CastFrame:Show();
+    end);
+    SetOverrideBindingClick(button, true, "BUTTON2", button:GetName());
+end
+
+function FishMaster:ResetOverride()
+    button:SetScript("PostClick", nil);
+    ClearOverrideBindings(FishMaster_Toolbar.cast);
+    FishMaster_CastFrame:Hide();
+end
+
 function FishMaster:EventHandler(event, ...)
     if event == "BAG_UPDATE" or event == "PLAYER_EQUIPMENT_CHANGED" then
         FishMaster:CheckEnabled()
@@ -403,9 +462,6 @@ function FishMaster:EventHandler(event, ...)
         FishMaster:Toolbar()
         FishMaster:CheckEnabled()
     elseif event == "SKILL_LINES_CHANGED" then
-        _G[_FishMaster.frame:GetName()].RankFrame.RankLevel:SetText(FishMaster:GetProfessionLevel("fishing") .. "/" .. 300)
-        _G[_FishMaster.frame:GetName()].RankFrame:SetValue(FishMaster:GetProfessionLevel("fishing"));
-
         FishMaster:Trigger("SkillLineChanged");
     elseif event == "LOOT_OPENED" then
         if IsFishingLoot() then
@@ -430,8 +486,12 @@ function FishMaster:EventHandler(event, ...)
         _FishMaster.isFishing = true;
     elseif event == "PLAYER_ENTERING_WORLD" then
         FishMaster:Trigger("loaded");
-    else
-        print(event);
+    elseif event == "VARIABLES_LOADED" then
+        if (WorldFrame.OnMouseDown) then
+            hooksecurefunc(WorldFrame, "OnMouseDown", FM_OnMouseDown)
+        else
+            SavedWFOnMouseDown = SafeHookScript(WorldFrame, "OnMouseDown", FM_OnMouseDown);
+        end
     end
 end
 

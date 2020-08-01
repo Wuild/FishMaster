@@ -14,6 +14,8 @@ L["button.right_click_text"] = "Auto lure"
 
 L["settings.autoLure"] = "Auto lure"
 L["settings.lowestLure"] = "Lowest first"
+L["settings.easyCast"] = "Easy cast"
+L["settings.easyCastDescription"] = "Double click right mouse button\nto cast or lure anywhere on the screen"
 L["settings.autoGear"] = "Auto equip the best gear"
 L["settings.tracker.show"] = "Show tracker"
 L["settings.tracker.session"] = "Show session only"
