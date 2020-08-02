@@ -60,6 +60,12 @@ table.reverse = function(t)
     return out
 end
 
+function FishMaster:debug(...)
+    if (FishMaster.db.global.debug) then
+        print(FishMaster:Colorize("<" .. FishMaster.name .. " - Debug>", "blue"), ...)
+    end
+end
+
 function FishMaster:SlotInfo()
     return FishMaster.slotInfo;
 end
@@ -141,19 +147,24 @@ function FishMaster:SetFrameText(frame, string)
 end
 
 function FishMaster:CheckEnabled()
-    if FishMaster:IsPoleEquipped() then
-        _G['FishMaster_Toolbar']:Show()
 
-        if FishMaster.db.char.tracker.enabled then
-            _G['FishMaster_Tracker']:Show()
-        else
-            _G['FishMaster_Tracker']:Hide()
-        end
-    else
-        _G['FishMaster_Toolbar']:Hide()
-        _G['FishMaster_Tracker']:Hide()
+    if FishMaster:CheckCombat() then
+        return
     end
 
+    securecall(function()
+        if FishMaster:IsPoleEquipped() then
+            _G['FishMaster_Toolbar']:Show()
+            if FishMaster.db.char.tracker.enabled then
+                _G['FishMaster_Tracker']:Show()
+            else
+                _G['FishMaster_Tracker']:Hide()
+            end
+        else
+            _G['FishMaster_Toolbar']:Hide()
+            _G['FishMaster_Tracker']:Hide()
+        end
+    end)
 end
 
 function FishMaster:IsEnabled()

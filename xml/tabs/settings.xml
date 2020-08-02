@@ -3,6 +3,23 @@
     <Frame name="FMSettingsTabTemplate" enableMouse="true" useParentLevel="true" virtual="true">
         <Frames>
 
+            <CheckButton name="$parentDebug" inherits="FMUICheckbox">
+                <Anchors>
+                    <Anchor point="BOTTOMLEFT" x="10" y="10"/>
+                </Anchors>
+
+                <Scripts>
+                    <OnShow>
+                        FishMaster:SetFrameText(self.Text, "settings.debug");
+                        self:SetChecked(FishMaster.db.global.debug);
+                    </OnShow>
+                    <OnClick>
+                        FishMaster.db.global.debug = not FishMaster.db.global.debug;
+                        FishMaster:Trigger("Settings");
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+
             <CheckButton name="$parentMiniMap" inherits="FMUICheckbox">
                 <Anchors>
                     <Anchor point="TOPLEFT" x="10" y="-10"/>
@@ -75,7 +92,8 @@
                         GameTooltip:ClearLines();
                         GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
                         GameTooltip:SetText(FishMaster:translate('settings.easyCast'));
-                        GameTooltip:AddLine(FishMaster:Colorize(FishMaster:translate('settings.easyCastDescription'), "white"));
+                        GameTooltip:AddLine(FishMaster:Colorize(FishMaster:translate('settings.easyCastDescription'),
+                        "white"));
                         GameTooltip:Show();
                     </OnEnter>
                     <OnLeave>

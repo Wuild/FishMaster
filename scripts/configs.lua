@@ -73,7 +73,9 @@ _FishMaster.lures = {
 }
 
 _FishMaster.configsDefaults = {
-    global = {},
+    global = {
+        debug = false
+    },
     char = {
         firstRun = true,
         enabled = false,

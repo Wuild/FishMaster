@@ -12,7 +12,9 @@ L["minimap.right_click_text"] = "Open settings"
 L["button.left_click_text"] = "Cast bobber"
 L["button.right_click_text"] = "Auto lure"
 
-L["settings.minimap"] = "Show minimap button"
+L["settings.debug"] = "Enable debugging"
+L[
+"settings.minimap"] = "Show minimap button"
 L["settings.autoLure"] = "Auto lure"
 L["settings.lowestLure"] = "Lowest first"
 L["settings.easyCast"] = "Easy cast"

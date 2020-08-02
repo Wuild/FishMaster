@@ -20,6 +20,9 @@ function FishMaster.ItemSlot:OnLoad(self)
     self:RegisterEvent("CURSOR_UPDATE");
     self:SetFrameLevel(self:GetFrameLevel() + 3);
 
+end
+
+function FishMaster.ItemSlot:OnShow(self)
     if FishMaster.db.char.outfit[self:GetAttribute("slot")] then
         self:SetAttribute("itemID", FishMaster.db.char.outfit[self:GetAttribute("slot")]);
         local itemID = self:GetAttribute("itemID");
@@ -115,5 +118,7 @@ function FishMaster.ItemSlot:OnReceiveDrag(button)
     elseif (_FishMaster.dragging.slot) then
         SavedPickupInventoryItem(_FishMaster.dragging.slot);
     end
+
+    FishMaster:debug("Equipment changed")
 
 end

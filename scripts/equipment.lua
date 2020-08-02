@@ -78,13 +78,29 @@ function FishMaster.equipment:OnModelLoad(model)
 end
 
 function FishMaster.equipment:OnLoad()
-
     _FishMaster.frame = CreateFrame("FRAME", frameName, UIParent, "FishMasterTopFrame");
     _FishMaster.frame:Hide();
     _FishMaster.frame:SetToplevel(true);
     _FishMaster.frame:EnableMouse(true);
     _FishMaster.frame:SetMovable(true);
     ButtonFrameTemplate_HideButtonBar(_FishMaster.frame);
+end
+
+function FishMaster.equipment:OnShow()
+    FishMaster.equipment:SetInfo()
+end
+
+function FishMaster.equipment:SetInfo()
+    local sName, sRank, numTempPoints, sMaxRank, skillModifier, sDescription = FishMaster:GetProfessionInfo(PROFESSIONS_FISHING)
+    if sName then
+        _G[_FishMaster.frame:GetName()].RankFrame.RankLevel:SetText(sRank .. "/" .. tostring(sMaxRank))
+        _G[_FishMaster.frame:GetName()].RankFrame:SetMinMaxValues(0, sMaxRank);
+        _G[_FishMaster.frame:GetName()].RankFrame:SetValue(sRank);
+    else
+        _G[_FishMaster.frame:GetName()].RankFrame.RankLevel:SetText(0 .. "/" .. 300)
+        _G[_FishMaster.frame:GetName()].RankFrame:SetMinMaxValues(0, 300);
+        _G[_FishMaster.frame:GetName()].RankFrame:SetValue(0);
+    end
 end
 
 function FishMaster.equipment:OnFrameLoad(self)
@@ -104,6 +120,8 @@ function FishMaster.equipment:Open()
     _G[frameName].RankFrame.RankLevel:SetText(FishMaster:GetProfessionLevel("fishing") .. "/" .. 300)
     _G[frameName].RankFrame:SetValue(FishMaster:GetProfessionLevel("fishing"));
     _G[frameName .. "Outfit"].AutoEquip.Text:SetText(FishMaster:translate("settings.autoLure"));
+
+    FishMaster.equipment:SetInfo();
 
     SetPortraitTexture(_G[frameName .. "Portrait"], "player")
     _G[frameName .. "TitleText"]:SetText(_FishMaster.name);

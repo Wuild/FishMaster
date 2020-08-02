@@ -10,6 +10,9 @@
             <OnLoad>
                 FishMaster.ItemSlot:OnLoad(self)
             </OnLoad>
+            <OnShow>
+                FishMaster.ItemSlot:OnShow(self)
+            </OnShow>
             <OnClick>
                 FishMaster.ItemSlot:OnClick(self, button)
             </OnClick>

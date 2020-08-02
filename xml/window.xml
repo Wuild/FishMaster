@@ -15,6 +15,9 @@
                 PanelTemplates_SetNumTabs(self, 2);
                 PanelTemplates_SetTab(self, 1);
             </OnLoad>
+            <OnShow>
+                FishMaster.equipment:OnShow();
+            </OnShow>
         </Scripts>
 
 

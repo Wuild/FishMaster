@@ -51,36 +51,41 @@ function FishMaster:Toggle()
 end
 
 function FishMaster:ToggleGear()
-
-    if FishMaster.db.char.enabled then
-
-        if not FishMaster:HasPole() then
-            return
-        end
-
-        if FishMaster.db.char.autoEquip then
-            FishMaster.db.char.outfit["MainHandSlot"] = FishMaster:FindBestPole()
-        end
-
-        for key, slot in pairs(FishMaster:SlotInfo()) do
-            FishMaster.db.char.storedOutfit[slot.name] = GetInventoryItemID("player", slot.id);
-        end
-
-        for slot, item in pairs(FishMaster.db.char.outfit) do
-            local s = FishMaster:FindSlotInfo(slot);
-            if s and FishMaster:FindItemInBags(item) then
-                EquipItemByName(item, s.id);
-            end
-        end
-        FishMaster:SetAudio(true)
-    else
-        for key, slot in pairs(FishMaster:SlotInfo()) do
-            if GetInventoryItemID("player", slot.id) ~= FishMaster.db.char.storedOutfit[slot.name] then
-                EquipItemByName(FishMaster.db.char.storedOutfit[slot.name], slot.id);
-            end
-        end
-        FishMaster:UnsetAudio()
+    if FishMaster:CheckCombat() then
+        return
     end
+    securecall(function()
+        if FishMaster.db.char.enabled then
+
+            if not FishMaster:HasPole() then
+                return
+            end
+
+            if FishMaster.db.char.autoEquip then
+                FishMaster.db.char.outfit["MainHandSlot"] = FishMaster:FindBestPole()
+            end
+
+            for key, slot in pairs(FishMaster:SlotInfo()) do
+                FishMaster.db.char.storedOutfit[slot.name] = GetInventoryItemID("player", slot.id);
+            end
+
+            for slot, item in pairs(FishMaster.db.char.outfit) do
+                local s = FishMaster:FindSlotInfo(slot);
+                if s and FishMaster:FindItemInBags(item) then
+                    EquipItemByName(item, s.id);
+                end
+            end
+            FishMaster:SetAudio(true)
+        else
+            for key, slot in pairs(FishMaster:SlotInfo()) do
+                if GetInventoryItemID("player", slot.id) ~= FishMaster.db.char.storedOutfit[slot.name] then
+                    EquipItemByName(FishMaster.db.char.storedOutfit[slot.name], slot.id);
+                end
+            end
+            FishMaster:UnsetAudio()
+        end
+    end)
+
 end
 
 function FishMaster:GatherSlash(input)
@@ -97,6 +102,8 @@ function FishMaster:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("FishMasterSettings", _FishMaster.configsDefaults, true)
     self.minimap = LibStub("LibDBIcon-1.0")
     FishMaster.minimap:Register("FishMasterMinimapIcon", minimapIcon, self.db.profile.minimap)
+
+    FishMaster:debug(_FishMaster.name, "has been loaded")
 
     FishMaster:RegisterEvent("PLAYER_EQUIPMENT_CHANGED", "EventHandler")
     FishMaster:RegisterEvent("BAG_UPDATE", "EventHandler")
@@ -120,7 +127,7 @@ function FishMaster:OnInitialize()
 
         FishMaster.tracker.Update()
         FishMaster.tracker.SetInfo();
-
+        FishMaster:debug("Settings has been saved")
     end)
 
     FishMaster:RegisterChatCommand("fmaster", "GatherSlash")
@@ -134,8 +141,6 @@ function FishMaster:OnInitialize()
         FishMaster.db.char.firstRun = false;
     end
 
-    --FishMaster:CreateMainButton()
-    --FishMaster:CreateLureButtons()
     FishMaster.equipment:OnLoad()
     FishMaster:CheckEnabled();
     FishMaster:SetAudio();
@@ -146,23 +151,15 @@ function FishMaster:OnInitialize()
     end);
 
     FishMaster:On("LootAdded", function()
+        FishMaster:debug("Loot added")
         FishMaster.tracker.Update()
         FishMaster.tracker.SetInfo();
     end);
 
     FishMaster:On("SkillLineChanged", function()
+        FishMaster:debug("Skill line changed")
         FishMaster.tracker.SetInfo();
-
-        local sName, sRank, numTempPoints, sMaxRank, skillModifier, sDescription = FishMaster:GetProfessionInfo(PROFESSIONS_FISHING)
-        if sName then
-            _G[_FishMaster.frame:GetName()].RankFrame.RankLevel:SetText(sRank .. "/" .. tostring(sMaxRank))
-            _G[_FishMaster.frame:GetName()].RankFrame:SetMinMaxValues(0, sMaxRank);
-            _G[_FishMaster.frame:GetName()].RankFrame:SetValue(sRank);
-        else
-            _G[_FishMaster.frame:GetName()].RankFrame.RankLevel:SetText(0 .. "/" .. 300)
-            _G[_FishMaster.frame:GetName()].RankFrame:SetMinMaxValues(0, 300);
-            _G[_FishMaster.frame:GetName()].RankFrame:SetValue(0);
-        end
+        FishMaster.equipment.SetInfo();
 
     end);
 end
