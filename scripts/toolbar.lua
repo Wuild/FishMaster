@@ -7,7 +7,9 @@ function FishMaster.toolbar.OnLoad(frame)
 end
 
 function FishMaster.toolbar:OnEvent(frame, event, ...)
-    FishMaster:ToolbarCast(frame.cast)
+    if not FishMaster:CheckCombat() then
+        FishMaster:ToolbarCast(frame.cast)
+    end
 end
 
 function FishMaster:Toolbar()

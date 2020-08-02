@@ -94,7 +94,7 @@ function FishMaster.ItemSlot:OnReceiveDrag(button)
     local parent = button:GetParent();
     local pname = parent:GetName();
 
-    local slotnames = FishMaster.ItemSlot.slotInfo;
+    local slotnames = FishMaster.slotInfo;
     if (not FishMaster:CursorCanGoInSlot(button)) then
         button = nil;
         for _, si in ipairs(slotnames) do

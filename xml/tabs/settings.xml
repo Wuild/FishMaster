@@ -3,10 +3,34 @@
     <Frame name="FMSettingsTabTemplate" enableMouse="true" useParentLevel="true" virtual="true">
         <Frames>
 
-            <CheckButton name="$parentAutoLure" inherits="FMUICheckbox">
+            <CheckButton name="$parentMiniMap" inherits="FMUICheckbox">
                 <Anchors>
                     <Anchor point="TOPLEFT" x="10" y="-10"/>
                 </Anchors>
+
+                <Scripts>
+                    <OnShow>
+                        FishMaster:SetFrameText(self.Text, "settings.minimap");
+                        self:SetChecked(not FishMaster.db.profile.minimap.hide);
+                    </OnShow>
+                    <OnClick>
+                        FishMaster.db.profile.minimap.hide = not FishMaster.db.profile.minimap.hide;
+                        FishMaster:Trigger("Settings");
+
+                        if FishMaster.db.profile.minimap.hide then
+                        FishMaster.minimap:Hide("FishMasterMinimapIcon");
+                        else
+                        FishMaster.minimap:Show("FishMasterMinimapIcon");
+                        end
+                    </OnClick>
+                </Scripts>
+            </CheckButton>
+
+            <CheckButton name="$parentAutoLure" inherits="FMUICheckbox">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="$parentMiniMap" relativePoint="BOTTOMLEFT"/>
+                </Anchors>
+
 
                 <Scripts>
                     <OnShow>

@@ -109,6 +109,8 @@ _FishMaster.configsDefaults = {
         }
     },
     profile = {
-
+        minimap = {
+            hide = false
+        }
     }
 }
