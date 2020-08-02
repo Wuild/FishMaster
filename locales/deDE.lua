@@ -16,6 +16,8 @@ L["button.right_click_text"] = "Automatisch ködern"
 
 L["settings.autoLure"] = "Automatisch ködern"
 L["settings.lowestLure"] = "geringsten Köder zuerst"
+L["settings.easyCast"] = "einfaches auswerfen"
+L["settings.easyCastDescription"] = "zum ködern oder auswerfen\nrechte Maustaste doppelt klicken"
 L["settings.autoGear"] = "Automatisch beste Ausrüstung"
 L["settings.tracker.show"] = "Tracker anzeigen"
 L["settings.tracker.session"] = "Nur aktuele Sitzung anzeigen"
