@@ -14,6 +14,7 @@ L["minimap.right_click_text"] = "Einstellungen öffnen"
 L["button.left_click_text"] = "Angel auswerfen"
 L["button.right_click_text"] = "Automatisch ködern"
 
+L["settings.debug"] = "Debugging aktivieren"
 L["settings.minimap"] = "zeige Minimapsymbol"
 L["settings.autoLure"] = "Automatisch ködern"
 L["settings.lowestLure"] = "geringsten Köder zuerst"
