@@ -460,6 +460,8 @@ function FishMaster:SetOverride()
 end
 
 function FishMaster:ResetOverride()
+    local toolbar = _G['FishMaster_Toolbar'];
+    local button = toolbar.cast;
     button:SetScript("PostClick", nil);
     ClearOverrideBindings(FishMaster_Toolbar.cast);
     FishMaster_CastFrame:Hide();
