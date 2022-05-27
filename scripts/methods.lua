@@ -468,42 +468,44 @@ function FishMaster:ResetOverride()
 end
 
 function FishMaster:EventHandler(event, ...)
-    if event == "BAG_UPDATE" or event == "PLAYER_EQUIPMENT_CHANGED" then
-        FishMaster:CheckEnabled()
-        FishMaster:UpdateModel();
+    if not FishMaster:CheckCombat() then
+        if event == "BAG_UPDATE" or event == "PLAYER_EQUIPMENT_CHANGED" then
+            FishMaster:CheckEnabled()
+            FishMaster:UpdateModel();
 
-        FishMaster:Toolbar()
-        FishMaster:CheckEnabled()
-    elseif event == "SKILL_LINES_CHANGED" then
-        FishMaster:Trigger("SkillLineChanged");
-    elseif event == "LOOT_OPENED" then
-        if IsFishingLoot() then
-            FishMaster:AddLoot()
-        end
-    elseif event == "UNIT_SPELLCAST_CHANNEL_START" or event == "UNIT_SPELLCAST_START" then
+            FishMaster:Toolbar()
+            FishMaster:CheckEnabled()
+        elseif event == "SKILL_LINES_CHANGED" then
+            FishMaster:Trigger("SkillLineChanged");
+        elseif event == "LOOT_OPENED" then
+            if IsFishingLoot() then
+                FishMaster:AddLoot()
+            end
+        elseif event == "UNIT_SPELLCAST_CHANNEL_START" or event == "UNIT_SPELLCAST_START" then
 
-        local target = select(1, ...);
-        local spell = select(3, ...);
+            local target = select(1, ...);
+            local spell = select(3, ...);
 
-        if target == "player" and GetSpellInfo(spell) ~= PROFESSIONS_FISHING then
-            _FishMaster.isCasting = true;
-        elseif target == "player" and GetSpellInfo(spell) == PROFESSIONS_FISHING then
+            if target == "player" and GetSpellInfo(spell) ~= PROFESSIONS_FISHING then
+                _FishMaster.isCasting = true;
+            elseif target == "player" and GetSpellInfo(spell) == PROFESSIONS_FISHING then
+                _FishMaster.isFishing = true;
+                _FishMaster.isCasting = false;
+            elseif target == "player" then
+                _FishMaster.isCasting = false;
+            end
+
+        elseif event == "UNIT_SPELLCAST_CHANNEL_STOP" or event == "UNIT_SPELLCAST_STOP" then
+            _FishMaster.isCasting = false;
             _FishMaster.isFishing = true;
-            _FishMaster.isCasting = false;
-        elseif target == "player" then
-            _FishMaster.isCasting = false;
-        end
-
-    elseif event == "UNIT_SPELLCAST_CHANNEL_STOP" or event == "UNIT_SPELLCAST_STOP" then
-        _FishMaster.isCasting = false;
-        _FishMaster.isFishing = true;
-    elseif event == "PLAYER_ENTERING_WORLD" then
-        FishMaster:Trigger("loaded");
-    elseif event == "VARIABLES_LOADED" then
-        if (WorldFrame.OnMouseDown) then
-            hooksecurefunc(WorldFrame, "OnMouseDown", FM_OnMouseDown)
-        else
-            SavedWFOnMouseDown = SafeHookScript(WorldFrame, "OnMouseDown", FM_OnMouseDown);
+        elseif event == "PLAYER_ENTERING_WORLD" then
+            FishMaster:Trigger("loaded");
+        elseif event == "VARIABLES_LOADED" then
+            if (WorldFrame.OnMouseDown) then
+                hooksecurefunc(WorldFrame, "OnMouseDown", FM_OnMouseDown)
+            else
+                SavedWFOnMouseDown = SafeHookScript(WorldFrame, "OnMouseDown", FM_OnMouseDown);
+            end
         end
     end
 end
