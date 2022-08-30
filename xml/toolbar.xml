@@ -167,6 +167,21 @@
                     </Layer>
                 </Layers>
             </Button>
+
+            <Button name="$parentLure7" parentArray="lures" registerForClicks="AnyUp" inherits="FishMaster_ToolbarItem">
+                <Attributes>
+                    <Attribute name="item" value="34861"/>
+                </Attributes>
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentLure6" relativePoint="TOPRIGHT" x="3" y="-16"/>
+                </Anchors>
+                <Size x="32" y="32"/>
+                <Layers>
+                    <Layer level="BORDER">
+                        <Texture name="$parentIconTexture" parentKey="icon" file="Interface/Icons/inv_misc_hook_01"/>
+                    </Layer>
+                </Layers>
+            </Button>
         </Frames>
     </Frame>
 

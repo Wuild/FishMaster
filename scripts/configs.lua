@@ -14,54 +14,17 @@ _FishMaster.settings = {};
 
 _FishMaster.poles = {
     19970, -- Arcanite Fishing Pole
-    19022, -- Nat Pagle’s Extreme Angler FC-5000
     6367, -- Big Iron Fishing Pole
+    25978, -- Seth's Graphite Fishing Pole
+    19022, -- Nat Pagle’s Extreme Angler FC-5000
+
     6365, -- Strong Fishing Pole
-    12225, -- Blump Family Fishing Pole
+    6366, -- Darkwood Fishing Pole
     6256, -- Fishing Pole
+    12225, -- Blump Family Fishing Pole
 }
 
 _FishMaster.lures = {
-
-    {
-        item = 6533, -- Aquadynamic Fish Attractor
-        spell = 9271,
-        skill = 100,
-        bonus = 100,
-        icon = "Interface\\Icons\\inv_misc_food_26"
-    },
-
-    {
-        item = 7307, -- Flesh Eating Worm
-        spell = 9092,
-        skill = 100,
-        bonus = 75,
-        icon = "Interface\\Icons\\inv_misc_monstertail_03"
-    },
-
-    {
-        item = 6532, -- Bright Baubles
-        spell = 8090,
-        skill = 100,
-        bonus = 75,
-        icon = "Interface\\Icons\\inv_misc_gem_variety_02"
-    },
-
-    {
-        item = 6811, -- Aquadynamic Fish Lens
-        spell = 8532,
-        skill = 50,
-        bonus = 50,
-        icon = "Interface\\Icons\\inv_misc_spyglass_01"
-    },
-
-    {
-        item = 6530, -- Nightcrawlers
-        spell = 8088,
-        skill = 50,
-        bonus = 50,
-        icon = "Interface\\Icons\\inv_misc_monstertail_03"
-    },
 
     {
         item = 6529, -- Shiny Bauble
@@ -70,6 +33,50 @@ _FishMaster.lures = {
         bonus = 25,
         icon = "Interface\\Icons\\inv_misc_orb_03"
     },
+    {
+        item = 6530, -- Nightcrawlers
+        spell = 8088,
+        skill = 50,
+        bonus = 50,
+        icon = "Interface\\Icons\\inv_misc_monstertail_03"
+    },
+    {
+        item = 6533, -- Aquadynamic Fish Attractor
+        spell = 9271,
+        skill = 100,
+        bonus = 100,
+        icon = "Interface\\Icons\\inv_misc_food_26"
+    },
+    {
+        item = 6811, -- Aquadynamic Fish Lens
+        spell = 8532,
+        skill = 50,
+        bonus = 50,
+        icon = "Interface\\Icons\\inv_misc_spyglass_01"
+    },
+    {
+        item = 6532, -- Bright Baubles
+        spell = 8090,
+        skill = 100,
+        bonus = 75,
+        icon = "Interface\\Icons\\inv_misc_gem_variety_02"
+    },
+    {
+        item = 7307, -- Flesh Eating Worm
+        spell = 9092,
+        skill = 100,
+        bonus = 75,
+        icon = "Interface\\Icons\\inv_misc_monstertail_03"
+    },
+    {
+        item = 34861, -- Sharpened Fish Hook
+        spell = 8090,
+        skill = 100,
+        bonus = 100,
+        icon = "Interface\\Icons\\inv_misc_hook_01"
+    }
+
+
 }
 
 _FishMaster.configsDefaults = {
