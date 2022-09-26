@@ -17,7 +17,6 @@ function FishMaster.ItemSlot:OnLoad(self)
     SetItemButtonTexture(self, self.backgroundTextureName);
     self:RegisterForDrag("LeftButton");
     self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
-    self:RegisterEvent("CURSOR_UPDATE");
     self:SetFrameLevel(self:GetFrameLevel() + 3);
 
 end
