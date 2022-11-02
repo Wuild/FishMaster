@@ -17,6 +17,11 @@ _FishMaster.poles = {
     6367, -- Big Iron Fishing Pole
     25978, -- Seth's Graphite Fishing Pole
     19022, -- Nat Pagle’s Extreme Angler FC-5000
+    45858, -- Nat's Lucky Fishing Pole
+
+    44050, -- Mastercraft Kalu'ak Fishing Pole
+    45992, -- Jeweled Fishing Pole
+    45991, -- Bone Fishing Pole
 
     6365, -- Strong Fishing Pole
     6366, -- Darkwood Fishing Pole
@@ -74,8 +79,14 @@ _FishMaster.lures = {
         skill = 100,
         bonus = 100,
         icon = "Interface\\Icons\\inv_misc_hook_01"
+    },
+    {
+        item = 46006, -- Glow Worm
+        spell = 64401,
+        skill = 100,
+        bonus = 100,
+        icon = "Interface\\Icons\\inv_inscription_pigment_bug07"
     }
-
 
 }
 
