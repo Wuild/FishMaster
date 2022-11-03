@@ -1,7 +1,7 @@
 ## Interface: 20504
-## Title: FishMaster|cFF00FF00 1.0.8|r
+## Title: FishMaster|cFF00FF00 1.0.12|r
 ## Author: Wuild
-## Version: 1.0.10
+## Version: 1.0.12
 ## OptionalDeps: Ace3, LibStub, LibDataBroker-1.1, LibDBIcon-1.0
 ## SavedVariables: FishMasterSettings
 ## SavedVariablesPerCharacter: FishMasterCharacter
