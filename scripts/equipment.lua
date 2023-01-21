@@ -104,10 +104,10 @@ function FishMaster.equipment:SetInfo()
 end
 
 function FishMaster.equipment:OnFrameLoad(self)
-    local temp = PickupContainerItem;
-    if (SafeHookFunction("PickupContainerItem", FM_PickupContainerItem)) then
-        SavedPickupContainerItem = temp;
-    end
+    local temp = C_Container.PickupContainerItem;
+    --if (SafeHookFunction("PickupContainerItem", FM_PickupContainerItem)) then
+    SavedPickupContainerItem = temp;
+    --end
 
     temp = PickupInventoryItem;
     if (SafeHookFunction("PickupInventoryItem", FM_PickupInventoryItem)) then

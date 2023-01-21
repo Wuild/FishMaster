@@ -3,6 +3,10 @@ local name, _FishMaster = ...;
 FishMaster.tracker = {};
 
 function FishMaster.tracker:CreateLine(key, fish)
+    if InCombatLockdown() then
+        return
+    end
+
     GetItemInfo(fish.item)
 
     local index = key
@@ -28,6 +32,11 @@ function FishMaster.tracker:CreateLine(key, fish)
 end
 
 function FishMaster.tracker:UpdateSize()
+
+    if InCombatLockdown() then
+        return
+    end
+
     local height = FishMaster_Tracker.defaultHeight;
 
     for key, line in pairs(FishMaster_Tracker.holder.lines) do
@@ -49,6 +58,10 @@ function FishMaster.tracker:OnEvent(frame, event, ...)
 end
 
 function FishMaster.tracker.Update()
+    if InCombatLockdown() then
+        return
+    end
+
     local zone = GetMinimapZoneText();
 
     local loot;
@@ -112,7 +125,7 @@ function FishMaster.tracker.SetInfo()
     local sName, sRank, numTempPoints, sMaxRank, skillModifier, sDescription = FishMaster:GetProfessionInfo(PROFESSIONS_FISHING)
 
     if sName then
-        if skillModifier and  skillModifier > 0 then
+        if skillModifier and skillModifier > 0 then
             FishMaster_Tracker.title.profession:SetText(string.format("%s: %s/%s %s", sName, sRank, sMaxRank, FishMaster:Colorize("+" .. skillModifier, "green")))
         else
             FishMaster_Tracker.title.profession:SetText(string.format("%s: %s/%s", sName, sRank, sMaxRank))

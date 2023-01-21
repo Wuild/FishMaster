@@ -160,6 +160,5 @@ function FishMaster:OnInitialize()
         FishMaster:debug("Skill line changed")
         FishMaster.tracker.SetInfo();
         FishMaster.equipment.SetInfo();
-
     end);
 end

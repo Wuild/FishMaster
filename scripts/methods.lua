@@ -251,8 +251,8 @@ end
 
 function FishMaster:FindItemInBags(itemID)
     for i = 0, NUM_BAG_SLOTS do
-        for z = 1, GetContainerNumSlots(i) do
-            if GetContainerItemID(i, z) == itemID then
+        for z = 1, C_Container.GetContainerNumSlots(i) do
+            if C_Container.GetContainerItemID(i, z) == itemID then
                 return itemID, i, z
             end
         end
