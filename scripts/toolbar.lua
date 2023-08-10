@@ -13,35 +13,33 @@ function FishMaster.toolbar:OnEvent(frame, event, ...)
 end
 
 function FishMaster:Toolbar()
-    if not FishMaster:CheckCombat() then
-        local parent = _G['FishMaster_Toolbar'];
-        for key, frame in pairs(parent.lures) do
-            local item = frame:GetAttribute("item")
-            local lure = FishMaster:FindLure(tonumber(item));
-            if item and lure then
-                local count = GetItemCount(item);
-                frame.count:SetText(count);
-                frame.count:Show();
-                if count > 0 then
-                    frame:Enable()
-                    frame:SetAlpha(1)
-                    frame.icon:SetDesaturated(nil)
-                    frame:SetAttribute("type", "macro");
-                    frame:SetAttribute("macrotext", "/cast " .. GetSpellInfo(lure.spell));
-                    frame:SetAttribute("target-slot", INVSLOT_MAINHAND);
-                else
-                    frame:Disable()
-                    frame:SetAlpha(.4)
-                    frame.icon:SetDesaturated(1)
+    local parent = _G['FishMaster_Toolbar'];
+    for key, frame in pairs(parent.lures) do
+        local item = frame:GetAttribute("item")
+        local lure = FishMaster:FindLure(tonumber(item));
+			if item and lure then
+				local count = GetItemCount(item);
+				frame.count:SetText(count);
+				frame.count:Show();
+			securecall(function()
+				if count > 0 then
+					frame:SetAlpha(1)
+					frame.icon:SetDesaturated(nil)
+					frame:SetAttribute("type", "macro");
+					frame:SetAttribute("macrotext", "/cast " .. GetSpellInfo(lure.spell));
+					frame:SetAttribute("target-slot", INVSLOT_MAINHAND);
+				else
+					frame:SetAlpha(.4)
+					frame.icon:SetDesaturated(1)
                     frame:SetAttribute("macrotext", nil);
-                end
-            else
-                frame:Disable()
-                frame:SetAlpha(.4)
-                frame.icon:SetDesaturated(1)
+				end
+			end)
+			
+			else
+				frame:SetAlpha(.4)
+				frame.icon:SetDesaturated(1)
                 frame:SetAttribute("macrotext", nil);
-            end
-        end
+			end
     end
 end
 
