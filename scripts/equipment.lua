@@ -26,10 +26,15 @@ local function SafeHookFunction(func, newfunc)
     if (type(newfunc) == "string") then
         newfunc = _G[newfunc];
     end
-    if (_G[func] ~= newfunc) then
-        hooksecurefunc(func, newfunc);
-        return true;
-    end
+	if (C_Container[func]) then
+		if (C_Container[func] ~= newfunc) then
+			hooksecurefunc(C_Container, func, newfunc);
+			return true;
+		end
+	elseif _G[func] ~= newfunc then
+		hooksecurefunc(func, newfunc);
+		return true;
+	end
     return false;
 end
 
