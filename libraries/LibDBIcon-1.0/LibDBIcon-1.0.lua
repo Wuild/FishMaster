@@ -277,7 +277,7 @@ local function createButton(name, object, db)
 end
 
 -- We could use a metatable.__index on lib.objects, but then we'd create
--- the images when checking things like :IsRegistered, which is not necessary.
+-- the icons when checking things like :IsRegistered, which is not necessary.
 local function check(name)
 	if lib.notCreated[name] then
 		createButton(name, lib.notCreated[name][1], lib.notCreated[name][2])
@@ -309,7 +309,7 @@ local function getDatabase(name)
 end
 
 function lib:Register(name, object, db)
-	if not object.icon then error("Can't register LDB objects without images set!") end
+	if not object.icon then error("Can't register LDB objects without icons set!") end
 	if lib.objects[name] or lib.notCreated[name] then error(DBICON10.. ": Object '".. name .."' is already registered.") end
 	if not db or not db.hide then
 		createButton(name, object, db)
