@@ -168,7 +168,7 @@
                 </Layers>
             </Button>
 
-<!--             <Button name="$parentLure7" parentArray="lures" registerForClicks="AnyUp" inherits="FishMaster_ToolbarItem">
+            <Button name="$parentLure7" parentArray="lures" registerForClicks="AnyUp" inherits="FishMaster_ToolbarItem">
                 <Attributes>
                     <Attribute name="item" value="34861"/>
                 </Attributes>
@@ -181,7 +181,7 @@
                         <Texture name="$parentIconTexture" parentKey="icon" file="Interface/Icons/inv_misc_hook_01"/>
                     </Layer>
                 </Layers>
-            </Button> -->
+            </Button>
         </Frames>
     </Frame>
 

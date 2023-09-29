@@ -1,9 +1,10 @@
 local name, _FishMaster = ...;
+local FM_Classic = WOW_PROJECT_CLASSIC;
 
 FishMaster.toolbar = {}
 
 function FishMaster.toolbar.OnLoad(frame)
-
+    
 end
 
 function FishMaster.toolbar:OnEvent(frame, event, ...)
@@ -14,6 +15,7 @@ end
 
 function FishMaster:Toolbar()
     local parent = _G['FishMaster_Toolbar'];
+	local frameCount = 0
     for key, frame in pairs(parent.lures) do
         local item = frame:GetAttribute("item")
         local lure = FishMaster:FindLure(tonumber(item));
@@ -28,10 +30,17 @@ function FishMaster:Toolbar()
 					frame:SetAttribute("type", "macro");
 					frame:SetAttribute("macrotext", "/cast " .. GetSpellInfo(lure.spell));
 					frame:SetAttribute("target-slot", INVSLOT_MAINHAND);
+						if frameCount > 12 and WOW_PROJECT_ID == FM_Classic then
+							frame:Hide();
+						end
+					
 				else
 					frame:SetAlpha(.4)
 					frame.icon:SetDesaturated(1)
                     frame:SetAttribute("macrotext", nil);
+						if frameCount > 12 and WOW_PROJECT_ID == FM_Classic then
+							frame:Hide();
+						end
 				end
 			end)
 			
@@ -40,6 +49,7 @@ function FishMaster:Toolbar()
 				frame.icon:SetDesaturated(1)
                 frame:SetAttribute("macrotext", nil);
 			end
+			frameCount = frameCount + 1;
     end
 end
 
