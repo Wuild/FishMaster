@@ -199,10 +199,10 @@ function FishMaster:GetProfessionInfo(name)
         local skillName, isHeader, isExpanded, skillRank, numTempPoints, skillModifier, skillMaxRank, isAbandonable, stepCost, rankCost, minLevel, skillCostType, skillDescription = GetSkillLineInfo(i)
         if skillName:lower() == name:lower() then
             return skillName, skillRank, numTempPoints, skillMaxRank, skillModifier, skillDescription
-        end
+        else
+			return nil
+		end
     end
-
-    return nil
 end
 
 function FishMaster:IsBodySlotOneHanded(bodyslot)
