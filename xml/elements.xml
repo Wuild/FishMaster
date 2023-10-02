@@ -1,0 +1,86 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.blizzard.com/wow/ui/FrameXML\UI.xsd">
+    <Frame name="FMUIText" virtual="true" frameLevel="10">
+        <Size x="275" y="16"/>
+
+        <Layers>
+            <Layer>
+                <FontString parentKey="Text" inherits="GameFontNormal" justifyV="MIDDLE" justifyH="LEFT" maxLines="2"
+                            text="FishMaster">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="0" y="0"/>
+                        <Anchor point="BOTTOMRIGHT" x="0" y="0"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Frame>
+    <Button name="FMUIItemTemplate" inherits="SecureActionButtonTemplate" virtual="true">
+        <Size>
+            <AbsDimension x="37" y="37"/>
+        </Size>
+        <Layers>
+            <Layer level="BORDER">
+                <Texture name="$parentIconTexture" parentKey="icon"/>
+                <FontString parentKey="count" inherits="NumberFontNormal" justifyH="RIGHT" hidden="true">
+                    <Anchors>
+                        <Anchor point="BOTTOMRIGHT">
+                            <Offset>
+                                <AbsDimension x="-5" y="2"/>
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <Cooldown name="$parentCooldown" inherits="CooldownFrameTemplate"/>
+        </Frames>
+        <Attributes>
+            <Attribute name="type2" type="string" value="item"/>
+        </Attributes>
+        <PushedTexture file="Interface\Buttons\UI-Quickslot-Depress"/>
+        <HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>
+    </Button>
+    <Frame name="FMLootItemTemplate" virtual="true">
+        <Size x="400" y="20"/>
+        <Anchors>
+            <Anchor point="TOPLEFT">
+                <AbsDimension/>
+            </Anchor>
+        </Anchors>
+
+        <Frames>
+            <Button parentKey="icon" inherits="FMUIItemTemplate" disabled="true">
+                <Anchors>
+                    <Anchor point="LEFT" x="0" y="0"/>
+                </Anchors>
+                <Size x="14" y="14"/>
+                <Layers>
+                    <Layer level="BORDER">
+                        <Texture name="$parentIconTexture" parentKey="texture"
+                                 file="Interface/Icons/inv_fishingpole_02"/>
+                    </Layer>
+                </Layers>
+            </Button>
+        </Frames>
+
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString inherits="GameFontWhite" parentKey="text" clearAllPoints="true">
+                    <Anchors>
+                        <Anchor point="LEFT" x="25"/>
+                    </Anchors>
+                </FontString>
+
+                <FontString inherits="GameFontNormal" parentKey="count" justifyH="RIGHT">
+                    <Anchors>
+                        <Anchor point="LEFT"/>
+                        <Anchor point="RIGHT" x="-10"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Frame>
+</Ui>
