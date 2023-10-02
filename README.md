@@ -1,29 +1,14 @@
-![FishMaster](./banner.jpg)
-Become a fishing master with this easy to use addon wich helps with luring and equiping your fishing items.
-This addon is developed and tested on World of Warcraft: Classic
+## Rewrite of fishmaster addon
+***
+NOT COMPLETE YET!
 
-[![Buy Me A Coffee](https://bmc-cdn.nyc3.digitaloceanspaces.com/BMC-button-images/custom_images/orange_img.png "Buy Me A Coffee")](https://www.buymeacoffee.com/yuImx6KOY "Buy Me A Coffee")
+This have added new and more bugs but also fixed old bugs
 
-#### Commands
-Use /fishmaster or /fishmaster when using these commands
+* Complete rewrite of the tracker (is actually works now)
+* Made the toolbar lures dynamic
+* Fixed the bug where it would not equip offhand weapons of the same name as the main hand
 
-Command | Arguments | description
----:| --- | ---|
-configs | | Open fishmaster configs
-Usage example **/fishmaster**
-
-### INSTALLATION
-Extract the data to your "World of Warcraft/Interface/AddOns" directory so that the "FishMaster" directory is a subdirectory of the "AddOns" directory.
-
-### Outfitter
-![FishMaster](./outfitter.jpg)
-
-### Actionbar
-![FishMaster](./example.jpg)
-
-### CONTRIBUTING
-FishMaster is an open source project, and is built upon support of the community. 
-
-Repository: [https://github.com/wuild/fishmaster]
-
-Issue Tracking: [https://github.com/wuild/fishmaster/issues]
+#### Todo
+* Equipment & settings tabs not yet available
+* Throws an error at launch of game but not at /reload
+* UNTESTED IN WRATH
