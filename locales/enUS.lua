@@ -27,5 +27,5 @@ L["settings.sound.enhance"] = "Enchance fishing sounds"
 L["settings.sound.force"] = "Force sound"
 L["settings.sound.volume"] = "Volume - %s%%"
 
-L["mode.session"] = "This Session: %s"
-L["mode.lifetime"] = "Lifetime: %s"
+L["mode.session"] = "Session: %s"
+L["mode.lifetime"] = "Overall: %s"

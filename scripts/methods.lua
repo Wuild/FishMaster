@@ -59,6 +59,19 @@ function FishMaster:TableFilter(t, filterIter)
     return out
 end
 
+function FishMaster:translate(key, ...)
+    local arg = { ... };
+
+    if Locale[key] == nil then
+        return key
+    end
+
+    for i, v in ipairs(arg) do
+        arg[i] = tostring(v);
+    end
+    return string.format(Locale[key], unpack(arg))
+end
+
 function FishMaster:IsInCombat()
     return InCombatLockdown() or UnitAffectingCombat("player") or UnitAffectingCombat("pet")
 end
@@ -147,6 +160,7 @@ function FishMaster:AddLoot()
         if not isQuestItem then
             FishMaster:AddToDatabase(itemName, tonumber(lQuantity), itemIcon, lQuality);
             FishMaster:AddToSession(itemName, tonumber(lQuantity), itemIcon, lQuality);
+            FishMaster:debug("Added loot to database", itemName)
         end
     end
 end

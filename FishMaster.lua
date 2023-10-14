@@ -50,7 +50,7 @@ _fish.configsDefaults = {
         tracker = {
             enabled = true,
             hideTrash = true,
-            session = false
+            session = true
         },
         audio = {
             enabled = false,
@@ -99,9 +99,9 @@ function FishMaster:print(...)
 end
 
 function FishMaster:debug(...)
-    if (FishMaster.db.global.debug.enabled) then
-        print(FishMaster:Colorize("<" .. stats.name .. " - " .. (stats.debug[stats.DEBUG_DEFAULT]) .. ">", "blue"), ...)
-    end
+    --if (FishMaster.db.global.debug.enabled) then
+    print(FishMaster:Colorize("<" .. name .. " - Debug>", "blue"), ...)
+    --end
 end
 
 function FishMaster:Colorize(str, color)
@@ -126,6 +126,18 @@ function FishMaster:Colorize(str, color)
     return c .. str .. "|r"
 end
 
+function FishMaster:SlashCommand(input)
+    input = string.trim(input, " ");
+
+    if input == "reset" then
+        FishMaster.db.char.loot = {}
+        FishMaster.sessionLoot = {}
+
+        FishMaster:SendMessage("FISHMASTER_RESET")
+    end
+
+end
+
 function FishMaster:OnInitialize()
     self.db = LibStub("AceDB-3.0"):New("FishMasterSettings", _fish.configsDefaults, true)
 
@@ -143,8 +155,14 @@ function FishMaster:OnEnable()
     self:RegisterEvent("UNIT_SPELLCAST_START", "EventHandler")
     self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP", "EventHandler")
     self:RegisterEvent("UNIT_SPELLCAST_STOP", "EventHandler")
+    self:RegisterEvent("LOOT_READY", "EventHandler")
     self:RegisterEvent("LOOT_OPENED", "EventHandler")
+    self:RegisterEvent("LOOT_CLOSED", "EventHandler")
+
+    self:RegisterChatCommand("fm", "SlashCommand")
 end
+
+local looted = false;
 
 function FishMaster:EventHandler(event, target, ...)
 
@@ -155,6 +173,20 @@ function FishMaster:EventHandler(event, target, ...)
 
         if event == "UNIT_SPELLCAST_CHANNEL_STOP" then
             FishMaster.IsCasting = false
+        end
+
+        if event == "LOOT_READY" then
+            if GetCVarBool("autoLootDefault") ~= IsModifiedClick("AUTOLOOTTOGGLE") then
+                if IsFishingLoot() and not looted then
+                    looted = true
+                    FishMaster:AddLoot()
+                    FishMaster:SendMessage("FISHMASTER_LOOT_ADDED")
+                end
+            end
+        end
+
+        if event == "LOOT_CLOSED" then
+            looted = false
         end
     end
 
@@ -171,13 +203,6 @@ function FishMaster:EventHandler(event, target, ...)
             if self.IsEnabled then
                 self:Disable()
             end
-        end
-    end
-
-    if event == "LOOT_OPENED" then
-        if IsFishingLoot() then
-            FishMaster:AddLoot()
-            FishMaster:SendMessage("FISHMASTER_LOOT_ADDED")
         end
     end
 end

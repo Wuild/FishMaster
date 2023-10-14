@@ -55,7 +55,7 @@ function Toolbar:UpdateCastButton()
     local lured = FishMaster:IsLured();
     local lure = FishMaster:FindBestLure();
     local text = "";
-    if not lured then
+    if not lured and lure then
         text = text .. "/use " .. GetSpellInfo(lure.spell) .. ";";
     else
         text = text .. "/cast " .. PROFESSIONS_FISHING

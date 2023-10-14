@@ -44,9 +44,20 @@ function Tracker:CreateFrame()
     profession:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, 0)
     profession:SetText("Fishing: 159")
 
-    local mode = header:CreateFontString(nil, "OVERLAY", "GameFontWhite")
+    local mode = CreateFrame("Button", nil, header)
     mode:SetPoint("TOPRIGHT", zone, "BOTTOMRIGHT", 0, 0)
     mode:SetText("Session")
+    mode:SetSize(140, 20)
+    local fo = mode:CreateFontString(nil, "OVERLAY", "GameFontWhite")
+    fo:SetPoint("TOPLEFT", mode, "TOPLEFT", 0, 0)
+    fo:SetPoint("BOTTOMRIGHT", mode, "BOTTOMRIGHT", 0, 0)
+    fo:SetJustifyH("RIGHT")
+    fo:SetText("test")
+    mode.text = fo;
+
+    mode:SetScript("OnClick", function()
+        Tracker:ToggleMode()
+    end)
 
     frame.header = header;
     frame.header.title = title
@@ -66,8 +77,41 @@ function Tracker:CreateLootList()
     lootFramePool = CreateFramePool("FRAME", frame, "FMLootItemTemplate")
 end
 
+function Tracker:GetFishCount()
+    local db = FishMaster.db.char.loot;
+    local zone = GetMinimapZoneText();
+
+    if FishMaster.db.char.tracker.session then
+        db = FishMaster.sessionLoot;
+    end
+
+    local fishes = FishMaster:TableFilter(db, function(loot)
+        if FishMaster.db.char.hideTrash then
+            return loot.quality > 0 and loot.zone == zone
+        end
+        return loot.zone == zone;
+    end);
+
+    local total = 0;
+
+    for i, fish in pairs(fishes) do
+        total = total + fish.quantity;
+    end
+
+    return total
+end
+
 function Tracker:UpdateFrame()
     Tracker:SetInfo()
+
+    local mode;
+    if FishMaster.db.char.tracker.session then
+        mode = FishMaster:translate("mode.session", Tracker:GetFishCount());
+    else
+        mode = FishMaster:translate("mode.lifetime", Tracker:GetFishCount());
+    end
+
+    frame.header.mode.text:SetText(mode)
 
     lootFramePool:ReleaseAll();
 
@@ -126,6 +170,11 @@ function Tracker:SetInfo()
     frame.header.zone:SetText(zone)
 end
 
+function Tracker:ToggleMode()
+    FishMaster.db.char.tracker.session = not FishMaster.db.char.tracker.session;
+    Tracker:UpdateFrame()
+end
+
 function Tracker:OnInitialize()
     Tracker:CreateFrame()
     Tracker:CreateLootList()
@@ -137,9 +186,11 @@ function Tracker:OnEnable()
     self:RegisterEvent("ZONE_CHANGED", "EventHandler")
     self:RegisterEvent("ZONE_CHANGED_INDOORS", "EventHandler")
     self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "EventHandler")
+    self:RegisterEvent("SKILL_LINES_CHANGED", "EventHandler")
     self:RegisterEvent("UNIT_AURA", "EventHandler");
 
     self:RegisterMessage("FISHMASTER_LOOT_ADDED", "MessageHandler")
+    self:RegisterMessage("FISHMASTER_RESET", "MessageHandler")
 
     Tracker:UpdateFrame()
 
@@ -150,7 +201,10 @@ function Tracker:OnDisable()
     self:UnregisterEvent("ZONE_CHANGED")
     self:UnregisterEvent("ZONE_CHANGED_INDOORS")
     self:UnregisterEvent("ZONE_CHANGED_NEW_AREA")
+    self:UnregisterEvent("SKILL_LINES_CHANGED")
     self:UnregisterEvent("UNIT_AURA")
+
+    self:UnregisterEvent("FISHMASTER_LOOT_ADDED")
 
     frame:Hide()
 end
@@ -162,7 +216,7 @@ function Tracker:EventHandler(event, target, ...)
 end
 
 function Tracker:MessageHandler(message)
-    if message == "FISHMASTER_LOOT_ADDED" then
+    if message == "FISHMASTER_LOOT_ADDED" or message == "FISHMASTER_RESET" then
         Tracker:UpdateFrame()
     end
 end
