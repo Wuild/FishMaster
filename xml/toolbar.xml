@@ -1,7 +1,7 @@
 <Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
     <Script file="scripts/toolbar.lua"/>
 
-    <Button name="FishMaster_ToolbarItem" parentArray="lures" registerForClicks="AnyUp" inherits="FMUIItemTemplate" virtual="true">
+    <Button name="FishMaster_ToolbarItem" parentArray="lures" registerForClicks="AnyDown" inherits="FMUIItemTemplate" virtual="true">
         <Anchors>
             <Anchor point="LEFT" relativeTo="$parentCast" relativePoint="TOPRIGHT" x="3" y="-16"/>
         </Anchors>
@@ -16,9 +16,10 @@
                 GameTooltip:ClearLines();
                 GameTooltip:SetOwner(self, "ANCHOR_LEFT");
 
-                local name, link = GetItemInfo(self:GetAttribute("item"))
-
-                GameTooltip:SetHyperlink(link);
+                local itemID = self:GetAttribute("lureItemId") or self:GetAttribute("item")
+                if itemID then
+                    GameTooltip:SetItemByID(tonumber(itemID) or itemID)
+                end
                 GameTooltip:Show();
             </OnEnter>
             <OnLeave>
@@ -28,7 +29,7 @@
         </Scripts>
     </Button>
 
-    <Frame name="FishMaster_Toolbar" registerForDrag="LeftButton" movable="true" parent="UIParent" clampToScreen="true"
+    <Frame name="FishMaster_Toolbar" registerForDrag="LeftButton" movable="true" parent="UIParent"
            frameStrata="BACKGROUND" hidden="true">
         <Anchors>
             <Anchor point="CENTER"/>
@@ -42,7 +43,7 @@
                 self:RegisterEvent("BAG_UPDATE");
                 self:RegisterEvent("LOOT_OPENED");
                 self:RegisterEvent("PLAYER_EQUIPMENT_CHANGED");
-                FishMaster.toolbar.OnLoad();
+                FishMaster.toolbar:OnLoad(self);
             </OnLoad>
             <OnDragStart>self:StartMoving();</OnDragStart>
             <OnDragStop>self:StopMovingOrSizing();</OnDragStop>
@@ -58,7 +59,7 @@
                 </Anchors>
             </Frame>
 
-            <Button name="$parentCast" parentKey="cast" registerForClicks="AnyUp" inherits="FMUIItemTemplate">
+            <Button name="$parentCast" parentKey="cast" registerForClicks="AnyDown" inherits="FMUIItemTemplate">
                 <Anchors>
                     <Anchor point="BOTTOMLEFT" x="5"/>
                 </Anchors>
@@ -73,9 +74,9 @@
             </Button>
 
 
-            <Button name="$parentLure1" parentArray="lures" registerForClicks="AnyUp" inherits="FishMaster_ToolbarItem">
+            <Button name="$parentLure1" parentArray="lures" registerForClicks="AnyDown" inherits="FishMaster_ToolbarItem">
                 <Attributes>
-                    <Attribute name="item" value="6529"/>
+                    <Attribute name="lureItemId" value="6529"/>
                 </Attributes>
                 <Anchors>
                     <Anchor point="LEFT" relativeTo="$parentCast" relativePoint="TOPRIGHT" x="3" y="-16"/>
@@ -89,9 +90,9 @@
             </Button>
 
 
-            <Button name="$parentLure2" parentArray="lures" registerForClicks="AnyUp" inherits="FishMaster_ToolbarItem">
+            <Button name="$parentLure2" parentArray="lures" registerForClicks="AnyDown" inherits="FishMaster_ToolbarItem">
                 <Attributes>
-                    <Attribute name="item" value="6530"/>
+                    <Attribute name="lureItemId" value="6530"/>
                 </Attributes>
                 <Anchors>
                     <Anchor point="LEFT" relativeTo="$parentLure1" relativePoint="TOPRIGHT" x="3" y="-16"/>
@@ -105,9 +106,9 @@
                 </Layers>
             </Button>
 
-            <Button name="$parentLure3" parentArray="lures" registerForClicks="AnyUp" inherits="FishMaster_ToolbarItem">
+            <Button name="$parentLure3" parentArray="lures" registerForClicks="AnyDown" inherits="FishMaster_ToolbarItem">
                 <Attributes>
-                    <Attribute name="item" value="6811"/>
+                    <Attribute name="lureItemId" value="6811"/>
                 </Attributes>
                 <Anchors>
                     <Anchor point="LEFT" relativeTo="$parentLure2" relativePoint="TOPRIGHT" x="3" y="-16"/>
@@ -121,9 +122,9 @@
                 </Layers>
             </Button>
 
-            <Button name="$parentLure4" parentArray="lures" registerForClicks="AnyUp" inherits="FishMaster_ToolbarItem">
+            <Button name="$parentLure4" parentArray="lures" registerForClicks="AnyDown" inherits="FishMaster_ToolbarItem">
                 <Attributes>
-                    <Attribute name="item" value="6532"/>
+                    <Attribute name="lureItemId" value="6532"/>
                 </Attributes>
                 <Anchors>
                     <Anchor point="LEFT" relativeTo="$parentLure3" relativePoint="TOPRIGHT" x="3" y="-16"/>
@@ -137,9 +138,9 @@
                 </Layers>
             </Button>
 
-            <Button name="$parentLure5" parentArray="lures" registerForClicks="AnyUp" inherits="FishMaster_ToolbarItem">
+            <Button name="$parentLure5" parentArray="lures" registerForClicks="AnyDown" inherits="FishMaster_ToolbarItem">
                 <Attributes>
-                    <Attribute name="item" value="7307"/>
+                    <Attribute name="lureItemId" value="7307"/>
                 </Attributes>
                 <Anchors>
                     <Anchor point="LEFT" relativeTo="$parentLure4" relativePoint="TOPRIGHT" x="3" y="-16"/>
@@ -153,9 +154,9 @@
                 </Layers>
             </Button>
 
-            <Button name="$parentLure6" parentArray="lures" registerForClicks="AnyUp" inherits="FishMaster_ToolbarItem">
+            <Button name="$parentLure6" parentArray="lures" registerForClicks="AnyDown" inherits="FishMaster_ToolbarItem">
                 <Attributes>
-                    <Attribute name="item" value="6533"/>
+                    <Attribute name="lureItemId" value="6533"/>
                 </Attributes>
                 <Anchors>
                     <Anchor point="LEFT" relativeTo="$parentLure5" relativePoint="TOPRIGHT" x="3" y="-16"/>
@@ -168,9 +169,9 @@
                 </Layers>
             </Button>
 
-            <Button name="$parentLure7" parentArray="lures" registerForClicks="AnyUp" inherits="FishMaster_ToolbarItem">
+            <Button name="$parentLure7" parentArray="lures" registerForClicks="AnyDown" inherits="FishMaster_ToolbarItem">
                 <Attributes>
-                    <Attribute name="item" value="34861"/>
+                    <Attribute name="lureItemId" value="34861"/>
                 </Attributes>
                 <Anchors>
                     <Anchor point="LEFT" relativeTo="$parentLure6" relativePoint="TOPRIGHT" x="3" y="-16"/>

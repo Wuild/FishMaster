@@ -10,34 +10,6 @@ _FishMaster.dragging = {
 
 local frameName = "FishMasterFrame"
 
-local function FM_PickupContainerItem(bag, slot)
-    local _, _, _, _, _, _, _, _, _, itemID = GetContainerItemInfo(bag, slot);
-    _FishMaster.dragging.bag = bag
-    _FishMaster.dragging.slot = slot
-    _FishMaster.dragging.item = itemID
-end
-
-local function FM_PickupInventoryItem(slot)
-    _FishMaster.dragging.slot = slot
-    _FishMaster.dragging.item = GetInventoryItemID("player", slot)
-end
-
-local function SafeHookFunction(func, newfunc)
-    if (type(newfunc) == "string") then
-        newfunc = _G[newfunc];
-    end
-	if (C_Container[func]) then
-		if (C_Container[func] ~= newfunc) then
-			hooksecurefunc(C_Container, func, newfunc);
-			return true;
-		end
-	elseif _G[func] ~= newfunc then
-		hooksecurefunc(func, newfunc);
-		return true;
-	end
-    return false;
-end
-
 function FishMaster:UpdateModel()
     local model;
 
@@ -109,15 +81,16 @@ function FishMaster.equipment:SetInfo()
 end
 
 function FishMaster.equipment:OnFrameLoad(self)
-    local temp = C_Container.PickupContainerItem;
-    --if (SafeHookFunction("PickupContainerItem", FM_PickupContainerItem)) then
-    SavedPickupContainerItem = temp;
-    --end
-
-    temp = PickupInventoryItem;
-    if (SafeHookFunction("PickupInventoryItem", FM_PickupInventoryItem)) then
-        SavedPickupInventoryItem = temp;
+    if C_Container and C_Container.PickupContainerItem then
+        SavedPickupContainerItem = C_Container.PickupContainerItem
+        FishMaster:SecureHook(C_Container, "PickupContainerItem", "OnPickupContainerItem")
+    else
+        SavedPickupContainerItem = PickupContainerItem
+        FishMaster:SecureHook("PickupContainerItem", "OnPickupContainerItem")
     end
+
+    SavedPickupInventoryItem = PickupInventoryItem
+    FishMaster:SecureHook("PickupInventoryItem", "OnPickupInventoryItem")
 end
 
 function FishMaster.equipment:Open()

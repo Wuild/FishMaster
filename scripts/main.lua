@@ -1,8 +1,6 @@
 local name, _FishMaster = ...;
 
 --_FishMaster.callbacks = LibStub("CallbackHandler-1.0"):New(_FishMaster)
-local SavedWFOnMouseDown;
-
 function dump(o)
     if type(o) == 'table' then
         local s = '{ '
@@ -55,6 +53,7 @@ function FishMaster:ToggleGear()
         return
     end
     securecall(function()
+        local used = {}
         if FishMaster.db.char.enabled then
 
             if not FishMaster:HasPole() then
@@ -71,15 +70,16 @@ function FishMaster:ToggleGear()
 
             for slot, item in pairs(FishMaster.db.char.outfit) do
                 local s = FishMaster:FindSlotInfo(slot);
-                if s and FishMaster:FindItemInBags(item) then
-                    EquipItemByName(item, s.id);
+                if s and item then
+                    FishMaster:EquipItemFromBags(item, s.id, used)
                 end
             end
             FishMaster:SetAudio(true)
         else
             for key, slot in pairs(FishMaster:SlotInfo()) do
-                if GetInventoryItemID("player", slot.id) ~= FishMaster.db.char.storedOutfit[slot.name] then
-                    EquipItemByName(FishMaster.db.char.storedOutfit[slot.name], slot.id);
+                local storedItem = FishMaster.db.char.storedOutfit[slot.name]
+                if storedItem and GetInventoryItemID("player", slot.id) ~= storedItem then
+                    FishMaster:EquipItemFromBags(storedItem, slot.id, used)
                 end
             end
             FishMaster:UnsetAudio()
@@ -105,19 +105,6 @@ function FishMaster:OnInitialize()
 
     FishMaster:debug(_FishMaster.name, "has been loaded")
 
-    FishMaster:RegisterEvent("PLAYER_EQUIPMENT_CHANGED", "EventHandler")
-    FishMaster:RegisterEvent("BAG_UPDATE", "EventHandler")
-    FishMaster:RegisterEvent("LOOT_OPENED", "EventHandler")
-    FishMaster:RegisterEvent("SKILL_LINES_CHANGED", "EventHandler")
-    FishMaster:RegisterEvent("PLAYER_ENTERING_WORLD", "EventHandler")
-    FishMaster:RegisterEvent("PLAYER_LEAVING_WORLD", "EventHandler")
-    FishMaster:RegisterEvent("LOOT_OPENED", "EventHandler")
-    FishMaster:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START", "EventHandler")
-    FishMaster:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP", "EventHandler")
-    FishMaster:RegisterEvent("UNIT_SPELLCAST_START", "EventHandler")
-    FishMaster:RegisterEvent("UNIT_SPELLCAST_STOP", "EventHandler")
-    FishMaster:RegisterEvent("VARIABLES_LOADED", "EventHandler")
-
     FishMaster:On("OnItemSlotChange", "ItemSlotChange")
 
     FishMaster:On("Settings", function()
@@ -142,23 +129,53 @@ function FishMaster:OnInitialize()
     end
 
     FishMaster.equipment:OnLoad()
-    FishMaster:CheckEnabled();
-    FishMaster:SetAudio();
 
     FishMaster:On("loaded", function()
         FishMaster.tracker.Load()
         FishMaster.tracker.SetInfo();
-    end);
+    end)
 
     FishMaster:On("LootAdded", function()
         FishMaster:debug("Loot added")
         FishMaster.tracker.Update()
         FishMaster.tracker.SetInfo();
-    end);
+        if FishMaster.lootTab then
+            FishMaster.lootTab:Update()
+        end
+    end)
 
     FishMaster:On("SkillLineChanged", function()
         FishMaster:debug("Skill line changed")
         FishMaster.tracker.SetInfo();
         FishMaster.equipment.SetInfo();
-    end);
+    end)
+end
+
+function FishMaster:OnEnable()
+    FishMaster:RegisterEvent("PLAYER_EQUIPMENT_CHANGED", "OnEquipmentChanged")
+    FishMaster:RegisterBucketEvent("BAG_UPDATE", 0.2, "OnBagUpdate")
+    FishMaster:RegisterEvent("LOOT_OPENED", "OnLootOpened")
+    FishMaster:RegisterEvent("SKILL_LINES_CHANGED", "OnSkillLinesChanged")
+    FishMaster:RegisterEvent("PLAYER_ENTERING_WORLD", "OnPlayerEnteringWorld")
+    FishMaster:RegisterEvent("PLAYER_LEAVING_WORLD", "OnPlayerLeavingWorld")
+    FishMaster:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START", "OnSpellcastStart")
+    FishMaster:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP", "OnSpellcastStop")
+    FishMaster:RegisterEvent("UNIT_SPELLCAST_START", "OnSpellcastStart")
+    FishMaster:RegisterEvent("UNIT_SPELLCAST_STOP", "OnSpellcastStop")
+    FishMaster:RegisterEvent("VARIABLES_LOADED", "OnVariablesLoaded")
+    FishMaster:RegisterEvent("LOOT_READY", "OnLootReady")
+
+    FishMaster:OnVariablesLoaded()
+    FishMaster:CheckEnabled()
+    FishMaster:SetAudio()
+end
+
+function FishMaster:OnDisable()
+    FishMaster:ResetOverride()
+    if _G["FishMaster_Toolbar"] then
+        _G["FishMaster_Toolbar"]:Hide()
+    end
+    if _G["FishMaster_Tracker"] then
+        _G["FishMaster_Tracker"]:Hide()
+    end
 end

@@ -12,7 +12,7 @@
 
         <Scripts>
             <OnLoad>
-                PanelTemplates_SetNumTabs(self, 2);
+                PanelTemplates_SetNumTabs(self, 3);
                 PanelTemplates_SetTab(self, 1);
             </OnLoad>
             <OnShow>
@@ -94,6 +94,12 @@
                     <Anchor point="BOTTOMRIGHT" relativeTo="FishMasterFrameInset" relativePoint="BOTTOMRIGHT"/>
                 </Anchors>
             </Frame>
+            <Frame parentKey="Loot" hidden="true" name="$parentLoot" inherits="FMLootTabTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" relativeTo="FishMasterFrameInset" relativePoint="TOPLEFT"/>
+                    <Anchor point="BOTTOMRIGHT" relativeTo="FishMasterFrameInset" relativePoint="BOTTOMRIGHT"/>
+                </Anchors>
+            </Frame>
 
             <Button name="$parentTab1" inherits="CharacterFrameTabButtonTemplate" id="1" text="Equipment">
                 <Anchors>
@@ -116,6 +122,23 @@
             <Button name="$parentTab2" inherits="CharacterFrameTabButtonTemplate" id="2" text="Settings">
                 <Anchors>
                     <Anchor point="LEFT" relativeTo="$parentTab1" relativePoint="RIGHT">
+                        <Offset>
+                            <AbsDimension x="-16" y="0"/>
+                        </Offset>
+                    </Anchor>
+                </Anchors>
+                <Scripts>
+                    <OnClick function="FishMasterFrameTab_OnClick"/>
+                    <OnEnter>
+                        GameTooltip:SetOwner(self, "ANCHOR_RIGHT");
+                        GameTooltip:SetText(self:GetText(), 1.0,1.0,1.0 );
+                    </OnEnter>
+                    <OnLeave function="GameTooltip_Hide"/>
+                </Scripts>
+            </Button>
+            <Button name="$parentTab3" inherits="CharacterFrameTabButtonTemplate" id="3" text="Loot">
+                <Anchors>
+                    <Anchor point="LEFT" relativeTo="$parentTab2" relativePoint="RIGHT">
                         <Offset>
                             <AbsDimension x="-16" y="0"/>
                         </Offset>

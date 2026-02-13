@@ -122,26 +122,6 @@ function FishMaster:GetPole(id)
     return false;
 end
 
-function FishMaster:SetAudio()
-    local variables = {
-        "Sound_MasterVolume",
-        "Sound_MusicVolume",
-        "Sound_AmbienceVolume",
-        "Sound_SFXVolume",
-        "Sound_EnableSoundWhenGameIsInBG",
-        "particleDensity",
-        "Sound_EnableAllSound",
-        "Sound_EnableSFX"
-    }
-
-    if FishMaster.db.char.turnOnSound then
-        for key, var in pairs(variables) do
-            FishMaster.db.char.defaultAudio[var] = GetCVar(var);
-        end
-    end
-
-end
-
 function FishMaster:SetFrameText(frame, string)
     frame:SetText(FishMaster:translate(string))
 end
@@ -186,7 +166,7 @@ function FishMaster:GetProfessionLevel(name)
     for i = 1, numSkills do
         local skillname, _, _, skillrank, _, skillmodifier = GetSkillLineInfo(i)
         if skillname:lower() == name:lower() then
-            return (skillrank or 0 + skillmodifier or 0)
+            return (skillrank or 0) + (skillmodifier or 0)
         end
     end
 
@@ -250,15 +230,52 @@ function FishMaster:SavePosition(frame)
     }
 end
 
-function FishMaster:FindItemInBags(itemID)
+function FishMaster:FindItemInBags(itemID, used)
     for i = 0, NUM_BAG_SLOTS do
-        for z = 1, C_Container.GetContainerNumSlots(i) do
-            if C_Container.GetContainerItemID(i, z) == itemID then
-                return itemID, i, z
+        local slotCount
+        if C_Container and C_Container.GetContainerNumSlots then
+            slotCount = C_Container.GetContainerNumSlots(i)
+        else
+            slotCount = GetContainerNumSlots(i)
+        end
+        for z = 1, slotCount do
+            local key = i .. ":" .. z
+            if not used or not used[key] then
+                local foundId
+                if C_Container and C_Container.GetContainerItemID then
+                    foundId = C_Container.GetContainerItemID(i, z)
+                else
+                    foundId = select(10, GetContainerItemInfo(i, z))
+                end
+                if foundId == itemID then
+                    return itemID, i, z
+                end
             end
         end
     end
     return nil, nil, nil
+end
+
+function FishMaster:EquipItemFromBags(itemID, slotId, used)
+    local _, bag, slot = FishMaster:FindItemInBags(itemID, used)
+    if not bag or not slot then
+        return false
+    end
+    local key = bag .. ":" .. slot
+    if used then
+        used[key] = true
+    end
+    if C_Container and C_Container.PickupContainerItem then
+        C_Container.PickupContainerItem(bag, slot)
+    else
+        PickupContainerItem(bag, slot)
+    end
+    if CursorHasItem() then
+        EquipCursorItem(slotId)
+        ClearCursor()
+        return true
+    end
+    return false
 end
 
 function FishMaster:HasPole()
@@ -322,7 +339,7 @@ end
 
 function FishMaster:FindInSession(name, zone)
     for key, loot in pairs(_FishMaster.session) do
-        if loot.item == name and zone == zone then
+        if loot.item == name and loot.zone == zone then
             return _FishMaster.session[key];
         end
     end
@@ -331,7 +348,7 @@ end
 
 function FishMaster:FindInDatabase(name, zone)
     for key, loot in pairs(FishMaster.db.char.loot) do
-        if loot.item == name and zone == zone then
+        if loot.item == name and loot.zone == zone then
             return FishMaster.db.char.loot[key];
         end
     end
@@ -393,7 +410,18 @@ function FishMaster:AddLoot()
         isCraftingReagent = GetItemInfo(lLink);
 
         if not isQuestItem then
-            FishMaster:AddToDatabase(itemName, tonumber(lQuantity), itemIcon, lQuality);
+            if not itemName then
+                itemName = lName
+            end
+            if not itemIcon then
+                itemIcon = lIcon
+            end
+            if not itemRarity then
+                itemRarity = lQuality
+            end
+            if itemName then
+                FishMaster:AddToDatabase(itemName, tonumber(lQuantity) or 1, itemIcon, itemRarity or 0);
+            end
         end
     end
 end
@@ -413,97 +441,179 @@ end
 
 function FishMaster:CheckForDoubleClick(button)
     if (button and button ~= "RightButton") then
+        FishMaster:debug("DoubleClick ignored: button", button)
         return false;
     end
     if (not LootFrame:IsShown() and self.lastClickTime) then
         local pressTime = GetTime();
         local doubleTime = pressTime - self.lastClickTime;
+        FishMaster:debug("DoubleClick delta", doubleTime)
         if ((doubleTime < 0.4) and (doubleTime > 0.05)) then
             self.lastClickTime = nil;
+            FishMaster:debug("DoubleClick detected")
             return true;
         end
     end
     self.lastClickTime = GetTime();
+    FishMaster:debug("DoubleClick prime", self.lastClickTime)
     return false;
 end
 
-local function SafeHookScript(frame, handlername, newscript)
-    local oldValue = frame:GetScript(handlername);
-    frame:SetScript(handlername, newscript);
-    return oldValue;
-end
-
-local function FM_OnMouseDown(...)
-    -- Only steal 'right clicks' (self is arg #1!)
-    local button = select(2, ...);
-    if (FishMaster.db.char.easyCast and not FishMaster:CheckCombat() and FishMaster:IsPoleEquipped()) then
-        if (FishMaster:CheckForDoubleClick(button)) then
-            -- We're stealing the mouse-up event, make sure we exit MouseLook
-            if (IsMouselooking()) then
-                MouselookStop();
-            end
-            FishMaster:SetOverride()
+function FishMaster:OnWorldFrameMouseDown(frame, button)
+    FishMaster:debug("WorldFrame mouse down", button)
+    if not self.db.char.easyCast or self:CheckCombat() or not self:IsPoleEquipped() then
+        FishMaster:debug(
+            "EasyCast blocked",
+            "easyCast", self.db.char.easyCast,
+            "combat", self:CheckCombat(),
+            "pole", self:IsPoleEquipped()
+        )
+        return
+    end
+    if self:CheckForDoubleClick(button) then
+        if IsMouselooking() then
+            MouselookStop()
         end
-        if (SavedWFOnMouseDown) then
-            SavedWFOnMouseDown(...);
-        end
+        FishMaster:debug("EasyCast override set")
+        self:SetOverride()
     end
 end
 
 function FishMaster:SetOverride()
 
     local toolbar = _G['FishMaster_Toolbar'];
+    if not toolbar or not toolbar.cast then
+        FishMaster:debug("Override failed: toolbar/cast missing")
+        return
+    end
     local button = toolbar.cast;
     button:SetScript("PostClick", function()
         FishMaster_CastFrame:Show();
     end);
     SetOverrideBindingClick(button, true, "BUTTON2", button:GetName());
+    FishMaster:debug("Override bound", button:GetName())
 end
 
 function FishMaster:ResetOverride()
     local toolbar = _G['FishMaster_Toolbar'];
+    if not toolbar or not toolbar.cast then
+        FishMaster:debug("Reset override: toolbar/cast missing")
+        return
+    end
     local button = toolbar.cast;
     button:SetScript("PostClick", nil);
     ClearOverrideBindings(FishMaster_Toolbar.cast);
     FishMaster_CastFrame:Hide();
+    FishMaster:debug("Override cleared")
 end
 
-function FishMaster:EventHandler(event, ...)
-    if event == "BAG_UPDATE" or event == "PLAYER_EQUIPMENT_CHANGED" then
-        FishMaster:CheckEnabled()
-        FishMaster:UpdateModel();
-    elseif event == "SKILL_LINES_CHANGED" then
-        FishMaster:Trigger("SkillLineChanged");
-    elseif event == "LOOT_OPENED" then
-        if IsFishingLoot() then
-            FishMaster:AddLoot()
-        end
-    elseif event == "UNIT_SPELLCAST_CHANNEL_START" or event == "UNIT_SPELLCAST_START" then
+function FishMaster:OnBagUpdate()
+    FishMaster:CheckEnabled()
+    FishMaster:UpdateModel()
+    FishMaster:Trigger("InventoryChanged")
+end
 
-        local target = select(1, ...);
-        local spell = select(3, ...);
+function FishMaster:OnEquipmentChanged()
+    FishMaster:CheckEnabled()
+    FishMaster:UpdateModel()
+    FishMaster:Trigger("EquipmentChanged")
+end
 
-        if target == "player" and GetSpellInfo(spell) ~= PROFESSIONS_FISHING then
-            _FishMaster.isCasting = true;
-        elseif target == "player" and GetSpellInfo(spell) == PROFESSIONS_FISHING then
-            _FishMaster.isFishing = true;
-            _FishMaster.isCasting = false;
-        elseif target == "player" then
-            _FishMaster.isCasting = false;
-        end
+function FishMaster:OnSkillLinesChanged()
+    FishMaster:Trigger("SkillLineChanged")
+end
 
-    elseif event == "UNIT_SPELLCAST_CHANNEL_STOP" or event == "UNIT_SPELLCAST_STOP" then
-        _FishMaster.isCasting = false;
-        _FishMaster.isFishing = true;
-    elseif event == "PLAYER_ENTERING_WORLD" then
-        FishMaster:Trigger("loaded");
-    elseif event == "VARIABLES_LOADED" then
-        if (WorldFrame.OnMouseDown) then
-            hooksecurefunc(WorldFrame, "OnMouseDown", FM_OnMouseDown)
-        else
-            SavedWFOnMouseDown = SafeHookScript(WorldFrame, "OnMouseDown", FM_OnMouseDown);
-        end
+local function isFishingLootNow()
+    if type(IsFishingLoot) == "function" then
+        return IsFishingLoot()
     end
+    if C_Loot and type(C_Loot.IsFishingLoot) == "function" then
+        return C_Loot.IsFishingLoot()
+    end
+    if _FishMaster.isFishing then
+        return true
+    end
+    if _FishMaster.lastFishingCastTime and (GetTime() - _FishMaster.lastFishingCastTime) < 6 then
+        return true
+    end
+    return false
+end
+
+function FishMaster:OnLootOpened()
+    if isFishingLootNow() then
+        FishMaster:AddLoot()
+        _FishMaster.isFishing = false
+    end
+end
+
+function FishMaster:OnLootReady()
+    if isFishingLootNow() then
+        FishMaster:AddLoot()
+        _FishMaster.isFishing = false
+    end
+end
+
+function FishMaster:OnSpellcastStart(unit, _, spellID)
+    if unit ~= "player" then
+        return
+    end
+
+    if GetSpellInfo(spellID) ~= PROFESSIONS_FISHING then
+        _FishMaster.isCasting = true
+        return
+    end
+
+    _FishMaster.lastFishingCastTime = GetTime()
+    _FishMaster.isFishing = true
+    _FishMaster.isCasting = false
+end
+
+function FishMaster:OnSpellcastStop(unit)
+    if unit ~= "player" then
+        return
+    end
+    _FishMaster.isCasting = false
+    _FishMaster.isFishing = true
+end
+
+function FishMaster:OnPlayerEnteringWorld()
+    FishMaster:Trigger("loaded")
+end
+
+function FishMaster:OnPlayerLeavingWorld()
+    FishMaster:ResetOverride()
+end
+
+function FishMaster:OnVariablesLoaded()
+    if _FishMaster.worldFrameHooked then
+        return
+    end
+    _FishMaster.worldFrameHooked = true
+    FishMaster:SecureHookScript(WorldFrame, "OnMouseDown", "OnWorldFrameMouseDown")
+end
+
+function FishMaster:OnPickupContainerItem(bag, slot)
+    local itemID
+    if C_Container and C_Container.GetContainerItemInfo then
+        local info = C_Container.GetContainerItemInfo(bag, slot)
+        if type(info) == "table" then
+            itemID = info.itemID
+        else
+            itemID = select(10, C_Container.GetContainerItemInfo(bag, slot))
+        end
+    else
+        itemID = select(10, GetContainerItemInfo(bag, slot))
+    end
+
+    _FishMaster.dragging.bag = bag
+    _FishMaster.dragging.slot = slot
+    _FishMaster.dragging.item = itemID
+end
+
+function FishMaster:OnPickupInventoryItem(slot)
+    _FishMaster.dragging.bag = nil
+    _FishMaster.dragging.slot = slot
+    _FishMaster.dragging.item = GetInventoryItemID("player", slot)
 end
 
 function FishMaster:ItemSlotChange(event, slot, item)
@@ -562,7 +672,8 @@ function FishMasterSwitchTabs(newID)
 
     local FISHMASTERFRAME_SUBFRAMES = {
         _FishMaster.frame:GetName() .. "Outfit",
-        _FishMaster.frame:GetName() .. "Settings"
+        _FishMaster.frame:GetName() .. "Settings",
+        _FishMaster.frame:GetName() .. "Loot"
     };
 
     local newFrame = _G[FISHMASTERFRAME_SUBFRAMES[newID]];

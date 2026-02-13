@@ -386,7 +386,7 @@
                     </Layer>
                 </Layers>
             </DressUpModel>
-            <CheckButton name="$parentAutoEquip" parentKey="AutoEquip" inherits="OptionsCheckButtonTemplate"
+            <CheckButton name="$parentAutoEquip" parentKey="AutoEquip" inherits="UICheckButtonTemplate"
                          frameLevel="10">
                 <Anchors>
                     <Anchor point="TOPLEFT" x="45" y="0" relativeTo="$parentModel" relativePoint="TOPLEFT"/>

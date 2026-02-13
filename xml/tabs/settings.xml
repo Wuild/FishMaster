@@ -256,9 +256,6 @@
                                 </Anchor>
                             </Anchors>
 
-                            <NormalFont style="GameFontNormal"/>
-                            <HighlightFont style="GameFontHighlight"/>
-                            <DisabledFont style="GameFontDisable"/>
                         </FontString>
                     </Layer>
                 </Layers>
@@ -298,10 +295,6 @@
                         FishMaster:Trigger("Settings");
                     </OnValueChanged>
                 </Scripts>
-
-                <NormalFont style="GameFontNormal"/>
-                <HighlightFont style="GameFontHighlight"/>
-                <DisabledFont style="GameFontDisable"/>
             </Slider>
 
 

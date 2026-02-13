@@ -1,6 +1,89 @@
 local name, _FishMaster = ...;
 
 FishMaster.tracker = {};
+FishMaster.lootTab = {};
+
+function FishMaster.lootTab:GetFrame()
+    if _FishMaster.frame and _FishMaster.frame.Loot then
+        return _FishMaster.frame.Loot
+    end
+    return _G["FishMasterFrameLoot"]
+end
+
+function FishMaster.lootTab:OnLoad(frame)
+    if not frame then
+        return
+    end
+    if frame.scroll and frame.scroll.content then
+        frame.scroll:SetScrollChild(frame.scroll.content)
+    end
+end
+
+function FishMaster.lootTab:Update()
+    if InCombatLockdown() then
+        return
+    end
+    local frame = FishMaster.lootTab:GetFrame()
+    if not frame or not frame.scroll or not frame.scroll.content then
+        return
+    end
+
+    frame.lines = frame.lines or {}
+    local content = frame.scroll.content
+
+    local totals = {}
+    for _, loot in pairs(FishMaster.db.char.loot or {}) do
+        if not FishMaster.db.char.hideTrash or (loot.quality and loot.quality > 0) then
+            local key = loot.item or ""
+            if key ~= "" then
+                local entry = totals[key]
+                if not entry then
+                    totals[key] = {
+                        item = loot.item,
+                        icon = loot.icon,
+                        quantity = loot.quantity or 0
+                    }
+                else
+                    entry.quantity = (entry.quantity or 0) + (loot.quantity or 0)
+                end
+            end
+        end
+    end
+
+    local lootList = {}
+    for _, entry in pairs(totals) do
+        table.insert(lootList, entry)
+    end
+
+    table.sort(lootList, function(a, b)
+        return (a.quantity or 0) > (b.quantity or 0)
+    end)
+
+    for _, line in pairs(frame.lines) do
+        line:Hide()
+    end
+
+    local height = 6
+    local y = -4
+    for i, loot in ipairs(lootList) do
+        local line = frame.lines[i]
+        if not line then
+            line = CreateFrame("FRAME", nil, content, "FMLootLineTemplate")
+            frame.lines[i] = line
+        end
+
+        line.icon:SetTexture(loot.icon)
+        line.item:SetText(loot.item or "")
+        line.count:SetText(tostring(loot.quantity or 0))
+        line:SetPoint("TOPLEFT", content, "TOPLEFT", 0, y)
+        line:Show()
+
+        y = y - line:GetHeight()
+        height = height + line:GetHeight()
+    end
+
+    content:SetHeight(height)
+end
 
 function FishMaster.tracker:CreateLine(key, fish)
     if InCombatLockdown() then
@@ -161,4 +244,3 @@ function FishMaster.tracker:OnUpdate(self)
     --end
 
 end
-

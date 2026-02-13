@@ -18,7 +18,7 @@
         </Anchors>
 
         <Frames>
-            <Button parentKey="icon" inherits="FMUIItemTemplate" disabled="true">
+            <Button parentKey="icon" inherits="FMUIItemTemplate">
                 <Anchors>
                     <Anchor point="TOPLEFT" x="5" y="2"/>
                 </Anchors>
@@ -34,7 +34,7 @@
 
         <Layers>
             <Layer level="OVERLAY">
-                <FontString inherits="GameFontWhite" parentKey="text" clearAllPoints="true">
+                <FontString inherits="GameFontWhite" parentKey="text">
                     <Anchors>
                         <Anchor point="TOPLEFT" x="25"/>
                     </Anchors>
@@ -50,7 +50,7 @@
         </Layers>
     </Frame>
 
-    <Frame name="FishMaster_Tracker" registerForDrag="LeftButton" movable="true" parent="UIParent" clampToScreen="true"
+    <Frame name="FishMaster_Tracker" registerForDrag="LeftButton" movable="true" parent="UIParent"
            frameStrata="BACKGROUND" hidden="true">
         <Anchors>
             <Anchor point="CENTER"/>
@@ -78,11 +78,6 @@
             <OnDragStart>self:StartMoving();</OnDragStart>
             <OnDragStop>self:StopMovingOrSizing();</OnDragStop>
         </Scripts>
-        <Backdrop bgFile="Interface\TutorialFrame\TutorialFrameBackground" tile="true">
-            <!--            <EdgeSize val="16"/>-->
-            <!--            <TileSize val="32"/>-->
-            <!--            <BackgroundInsets left="5" right="5" top="5" bottom="5"/>-->
-        </Backdrop>
         <Frames>
             <Frame name="$parentTitle" parentKey="title">
                 <Size>

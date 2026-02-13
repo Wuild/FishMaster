@@ -1,10 +1,20 @@
 local name, _FishMaster = ...;
 local CallbackHandler = LibStub("CallbackHandler-1.0")
 
-FishMaster = LibStub("AceAddon-3.0"):NewAddon("FishMaster", "AceConsole-3.0", "AceEvent-3.0", "AceTimer-3.0", "AceComm-3.0", "AceSerializer-3.0", "FishEvents-1.0")
+FishMaster = LibStub("AceAddon-3.0"):NewAddon(
+    "FishMaster",
+    "AceConsole-3.0",
+    "AceEvent-3.0",
+    "AceBucket-3.0",
+    "AceTimer-3.0",
+    "AceComm-3.0",
+    "AceSerializer-3.0",
+    "AceHook-3.0",
+    "FishEvents-1.0"
+)
 
 _FishMaster.name = name;
-_FishMaster.version = GetAddOnMetadata(name, "version");
+_FishMaster.version = C_AddOns.GetAddOnMetadata(name, "version");
 
 _FishMaster.iconPath = "Interface\\AddOns\\" .. _FishMaster.name .. "\\images\\"
 

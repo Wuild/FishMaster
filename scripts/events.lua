@@ -11,7 +11,12 @@ FishEvents.embeds = FishEvents.embeds or {}
 
 if not FishEvents.events then
     FishEvents.events = CallbackHandler:New(FishEvents, "On", "Off", "OffAll")
-    FishEvents.Trigger = FishEvents.events.Fire
+    function FishEvents:Trigger(event, ...)
+        FishEvents.events:Fire(event, ...)
+        if self.SendMessage then
+            self:SendMessage(event, ...)
+        end
+    end
 end
 
 local mixins = { "On", "Off", "OffAll", "Trigger" }

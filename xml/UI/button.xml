@@ -89,7 +89,7 @@
     </Frame>
 
 
-    <CheckButton name="FMUICheckbox" inherits="OptionsCheckButtonTemplate" virtual="true">
+    <CheckButton name="FMUICheckbox" inherits="UICheckButtonTemplate" virtual="true">
         <Scripts>
             <OnClick/>
             <OnUpdate/>
