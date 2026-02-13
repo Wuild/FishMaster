@@ -1,0 +1,70 @@
+<Ui xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+    <Frame name="FMLootLineTemplate" virtual="true">
+        <Size x="320" y="18"/>
+        <Layers>
+            <Layer level="ARTWORK">
+                <Texture parentKey="icon">
+                    <Size x="16" y="16"/>
+                    <Anchors>
+                        <Anchor point="LEFT" x="4" y="0"/>
+                    </Anchors>
+                </Texture>
+                <FontString parentKey="item" inherits="GameFontNormalSmall" justifyH="LEFT">
+                    <Size x="170" y="14"/>
+                    <Anchors>
+                        <Anchor point="LEFT" x="24" y="0"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="count" inherits="GameFontNormalSmall" justifyH="RIGHT">
+                    <Size x="30" y="14"/>
+                    <Anchors>
+                        <Anchor point="RIGHT" x="-4"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+    </Frame>
+
+    <Frame name="FMLootTabTemplate" virtual="true">
+        <Scripts>
+            <OnLoad>
+                FishMaster.lootTab:OnLoad(self)
+            </OnLoad>
+            <OnShow>
+                FishMaster.lootTab:Update()
+            </OnShow>
+        </Scripts>
+        <Layers>
+            <Layer level="ARTWORK">
+                <FontString parentKey="title" inherits="GameFontNormal" text="Total Loot">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="12" y="-10"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="headerItem" inherits="GameFontNormalSmall" text="Item">
+                    <Anchors>
+                        <Anchor point="TOPLEFT" x="34" y="-30"/>
+                    </Anchors>
+                </FontString>
+                <FontString parentKey="headerCount" inherits="GameFontNormalSmall" text="Qty">
+                    <Anchors>
+                        <Anchor point="TOPRIGHT" x="-20" y="-30"/>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+        <Frames>
+            <ScrollFrame parentKey="scroll" inherits="UIPanelScrollFrameTemplate">
+                <Anchors>
+                    <Anchor point="TOPLEFT" x="6" y="-44"/>
+                    <Anchor point="BOTTOMRIGHT" x="-28" y="6"/>
+                </Anchors>
+                <Frames>
+                    <Frame parentKey="content">
+                        <Size x="320" y="200"/>
+                    </Frame>
+                </Frames>
+            </ScrollFrame>
+        </Frames>
+    </Frame>
+</Ui>
