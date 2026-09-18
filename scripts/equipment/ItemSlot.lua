@@ -1,123 +1,73 @@
-local name, _FishMaster = ...;
-
+local _, ns = ...
+local API, UI = ns.API, ns.UI
 FishMaster.ItemSlot = {}
 
-
-function FishMaster.ItemSlot:Clear(self)
-    button.name = nil;
-    button.item = nil;
-    button.texture = nil;
-    button.color = nil;
-end
-
-function FishMaster.ItemSlot:OnLoad(self)
-    local id, textureName = GetInventorySlotInfo(self:GetAttribute("slot"));
-    self:SetID(id);
-    self.backgroundTextureName = textureName;
-    SetItemButtonTexture(self, self.backgroundTextureName);
-    self:RegisterForDrag("LeftButton");
-    self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
-    self:SetFrameLevel(self:GetFrameLevel() + 3);
-
-end
-
-function FishMaster.ItemSlot:OnShow(self)
-    if FishMaster.db.char.outfit[self:GetAttribute("slot")] then
-        self:SetAttribute("itemID", FishMaster.db.char.outfit[self:GetAttribute("slot")]);
-        local itemID = self:GetAttribute("itemID");
-        if (itemID) then
-            local name, link, _, _, _, _, _, _, _, texture = GetItemInfo(itemID);
-            SetItemButtonTexture(self, texture);
-            self:SetAttribute("item", { GetItemInfo(itemID) })
+function FishMaster.ItemSlot:Create(parent, slot)
+    local button = UI.IconButton(parent, 38)
+    button.slot = slot
+    button:SetID(slot.id)
+    button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
+    button:RegisterForDrag("LeftButton")
+    button.label = UI.Text(button, slot.label or slot.name, "GameFontNormalSmall")
+    button.label:SetWidth(105)
+    if slot.side == "right" then
+        button.label:SetPoint("RIGHT", button, "LEFT", -8, 0)
+        button.label:SetJustifyH("RIGHT")
+    elseif slot.side == "left" then
+        button.label:SetPoint("LEFT", button, "RIGHT", 8, 0)
+    else
+        button.label:SetPoint("TOP", button, "BOTTOM", 0, -6)
+        button.label:SetJustifyH("CENTER")
+    end
+    button:SetScript("OnReceiveDrag", function(self) FishMaster.ItemSlot:Receive(self) end)
+    button:SetScript("OnClick", function(self, mouse)
+        if FishMaster:CheckCombat() then return end
+        if mouse == "RightButton" then
+            FishMaster.db.char.outfit[slot.name] = nil
+            FishMaster.equipment:Refresh()
         else
-            SetItemButtonTexture(self, self.backgroundTextureName);
-            self:SetAttribute("item", nil)
+            FishMaster.ItemSlot:Receive(self)
         end
-    end
-end
-
-function FishMaster.ItemSlot:OnClick(self, button)
-    if button == "LeftButton" then
-        FishMaster.ItemSlot:OnReceiveDrag(self)
-    elseif button == "RightButton" then
-        self:SetAttribute("itemID", nil);
-        FishMaster.ItemSlot:OnChange(self)
-    end
-end
-
-function FishMaster.ItemSlot:Tooltip(button)
-    if button:GetAttribute("itemID") then
-        local name, link = GetItemInfo(button:GetAttribute("itemID"))
-
-        GameTooltip:SetOwner(button, "ANCHOR_LEFT");
-        GameTooltip:SetHyperlink(link);
-        GameTooltip:Show();
-    else
-        local slot = FishMaster:FindSlotInfo(button:GetAttribute("slot"))
-
-        GameTooltip:SetOwner(button, "ANCHOR_RIGHT");
-        GameTooltip:SetText(slot.tooltip);
-        GameTooltip:Show();
-    end
-end
-
-function FishMaster.ItemSlot:OnEnter(self)
-    GameTooltip:ClearLines();
-
-    FishMaster.ItemSlot:Tooltip(self);
-    self.hovering = true;
-end
-
-function FishMaster.ItemSlot:OnLeave(self)
-    GameTooltip:ClearLines();
-    GameTooltip:Hide();
-    self.hovering = false;
-end
-
-function FishMaster.ItemSlot:OnChange(self)
-    local itemID = self:GetAttribute("itemID");
-    if (itemID) then
-        local name, link, _, _, _, _, _, _, _, texture = GetItemInfo(itemID);
-        SetItemButtonTexture(self, texture);
-        self:SetAttribute("item", { GetItemInfo(itemID) })
-    else
-        SetItemButtonTexture(self, self.backgroundTextureName);
-        self:SetAttribute("item", nil)
-    end
-
-    FishMaster:Trigger("OnItemSlotChange", self:GetAttribute("slot"), itemID)
-    FishMaster:UpdateModel(self:GetParent());
-    if self.hovering then
-        FishMaster.ItemSlot:Tooltip(self)
-    end
-end
-
-function FishMaster.ItemSlot:OnReceiveDrag(button)
-    local parent = button:GetParent();
-    local pname = parent:GetName();
-
-    local slotnames = FishMaster.slotInfo;
-    if (not FishMaster:CursorCanGoInSlot(button)) then
-        button = nil;
-        for _, si in ipairs(slotnames) do
-            local temp = _G[pname .. si.name];
-            if (temp and FishMaster:CursorCanGoInSlot(temp)) then
-                button = temp;
-            end
+    end)
+    button:SetScript("OnEnter", function(self)
+        GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+        local item = FishMaster.db.char.outfit[slot.name]
+        if item then GameTooltip:SetItemByID(item)
+        else
+            GameTooltip:SetText(slot.label or slot.name)
+            GameTooltip:AddLine(FishMaster:translate("outfit.empty"), 1, 1, 1, true)
         end
+        GameTooltip:AddLine(FishMaster:translate("outfit.slotHelp"), .65, .65, .65, true)
+        GameTooltip:Show()
+    end)
+    button:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    return button
+end
+
+function FishMaster.ItemSlot:Receive(button)
+    if FishMaster:CheckCombat() then return end
+    local kind, itemID = GetCursorInfo()
+    if kind ~= "item" or not itemID then return end
+    if not API.CursorFits(button.slot.id) then
+        FishMaster:Print(FishMaster:translate("error.slot"))
+        return
     end
+    FishMaster.db.char.outfit[button.slot.name] = itemID
+    ClearCursor()
+    FishMaster.equipment:Refresh()
+end
 
-    if (button) then
-        button:SetAttribute("itemID", _FishMaster.dragging.item);
-        FishMaster.ItemSlot:OnChange(button)
+function FishMaster.ItemSlot:Refresh(button)
+    local item = FishMaster.db.char.outfit[button.slot.name]
+    local _, texture = API.SlotInfo(button.slot.name)
+    local quality
+    if item then
+        local _, _, rarity, _, _, _, _, _, _, icon = API.ItemInfo(item)
+        quality = rarity
+        texture = icon or C_Item.GetItemIconByID(item) or 134400
     end
-
-    if (_FishMaster.dragging.bag) then
-        SavedPickupContainerItem(_FishMaster.dragging.bag, _FishMaster.dragging.slot);
-    elseif (_FishMaster.dragging.slot) then
-        SavedPickupInventoryItem(_FishMaster.dragging.slot);
-    end
-
-    FishMaster:debug("Equipment changed")
-
+    button.icon:SetTexture(texture or 134400)
+    local color = ITEM_QUALITY_COLORS[quality or 1] or ITEM_QUALITY_COLORS[1]
+    button:GetNormalTexture():SetVertexColor(color.r, color.g, color.b)
+    button.icon:SetDesaturated(false)
 end

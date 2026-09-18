@@ -1,688 +1,291 @@
-local name, _FishMaster = ...;
-local Locale = LibStub("AceLocale-3.0"):GetLocale(name, true)
+local name, ns = ...
+local API = ns.API
+local L = LibStub("AceLocale-3.0"):GetLocale(name, true)
+ns.session = {}
+ns.isCasting = false
 
-_FishMaster.enabled = nil;
-_FishMaster.session = {}
-_FishMaster.isCasting = false;
-_FishMaster.isFishing = false;
-
-FishMaster.slotInfo = {
-    [1] = { name = "HeadSlot", tooltip = HEADSLOT, id = INVSLOT_HEAD },
-    [2] = { name = "NeckSlot", tooltip = NECKSLOT, id = INVSLOT_NECK },
-    [3] = { name = "ShoulderSlot", tooltip = SHOULDERSLOT, id = INVSLOT_SHOULDER },
-    [4] = { name = "BackSlot", tooltip = BACKSLOT, id = INVSLOT_BACK },
-    [5] = { name = "ChestSlot", tooltip = CHESTSLOT, id = INVSLOT_CHEST },
-    [6] = { name = "ShirtSlot", tooltip = SHIRTSLOT, id = INVSLOT_BODY },
-    [7] = { name = "TabardSlot", tooltip = TABARDSLOT, id = INVSLOT_TABARD },
-    [8] = { name = "WristSlot", tooltip = WRISTSLOT, id = INVSLOT_WRIST },
-    [9] = { name = "HandsSlot", tooltip = HANDSSLOT, id = INVSLOT_HAND },
-    [10] = { name = "WaistSlot", tooltip = WAISTSLOT, id = INVSLOT_WAIST },
-    [11] = { name = "LegsSlot", tooltip = LEGSSLOT, id = INVSLOT_LEGS },
-    [12] = { name = "FeetSlot", tooltip = FEETSLOT, id = INVSLOT_FEET },
-    [13] = { name = "Finger0Slot", tooltip = FINGER0SLOT, id = INVSLOT_FINGER1 },
-    [14] = { name = "Finger1Slot", tooltip = FINGER1SLOT, id = INVSLOT_FINGER2 },
-    [15] = { name = "Trinket0Slot", tooltip = TRINKET0SLOT, id = INVSLOT_TRINKET1 },
-    [16] = { name = "Trinket1Slot", tooltip = TRINKET1SLOT, id = INVSLOT_TRINKET2 },
-    [17] = { name = "MainHandSlot", tooltip = MAINHANDSLOT, id = INVSLOT_MAINHAND },
-    [18] = { name = "SecondaryHandSlot", tooltip = SECONDARYHANDSLOT, id = INVSLOT_OFFHAND },
-    [19] = { name = "RangedSlot", tooltip = RANGEDSLOT, id = INVSLOT_RANGED },
-    [20] = { name = "AmmoSlot", tooltip = AMMOSLOT, id = INVSLOT_AMMO },
-}
-
-table.length = function(T)
-    local count = 0
-    if T then
-        for _ in pairs(T) do
-            count = count + 1
-        end
-    end
-    return count
-end
-
-table.filter = function(t, filterIter)
-    local out = {}
-
-    for k, v in pairs(t) do
-        if filterIter(v, k, t) then
-            out[k] = v;
-        end
-    end
-
-    return out
-end
-
-table.reverse = function(t)
-    local out = {}
-    local length = table.length(t);
-    for k, v in pairs(t) do
-        out[(length + 1) - k] = v;
-    end
-    return out
+function FishMaster:translate(key, ...)
+    local value = L[key] or key
+    if select("#", ...) > 0 then return string.format(value, ...) end
+    return value
 end
 
 function FishMaster:debug(...)
-    if (FishMaster.db.global.debug) then
-        print(FishMaster:Colorize("<" .. FishMaster.name .. " - Debug>", "blue"), ...)
-    end
+    if self.db and self.db.global.debug then self:Print(...) end
 end
 
-function FishMaster:SlotInfo()
-    return FishMaster.slotInfo;
+function FishMaster:GetProfessionInfo(profession)
+    return API.Profession(profession)
 end
 
-function FishMaster:FindSlotInfo(name)
-    for index, slot in pairs(FishMaster:SlotInfo()) do
-        if slot.name == name then
-            return slot;
-        end
-    end
+function FishMaster:GetProfessionLevel(profession)
+    local _, rank, _, _, bonus = API.Profession(profession)
+    return (rank or 0) + (bonus or 0)
 end
 
-function FishMaster:Colorize(str, color)
-    local c = '';
-    if color == 'red' then
-        c = '|cffff0000';
-    elseif color == 'gray' then
-        c = '|cFFCFCFCF';
-    elseif color == 'purple' then
-        c = '|cFFB900FF';
-    elseif color == 'blue' then
-        c = '|cB900FFFF';
-    elseif color == 'yellow' then
-        c = '|cFFFFB900';
-    elseif color == 'green' then
-        c = "|cFF00FF00";
-    elseif color == 'white' then
-        c = "|cffffffff"
-    elseif color == 'cyan' then
-        c = "|cff00FFFF"
-    end
-    return c .. str .. "|r"
-end
-
-function FishMaster:translate(key, ...)
-    local arg = { ... };
-
-    if Locale[key] == nil then
-        return key
-    end
-
-    for i, v in ipairs(arg) do
-        arg[i] = tostring(v);
-    end
-    return string.format(Locale[key], unpack(arg))
-end
-
-function FishMaster:GetPole(id)
-    for key, item in pairs(_FishMaster.poles) do
-        if item == id then
-            return _FishMaster.poles[key]
-        end
-    end
-    return false;
-end
-
-function FishMaster:SetFrameText(frame, string)
-    frame:SetText(FishMaster:translate(string))
-end
-
-function FishMaster:CheckEnabled()
-
-    if FishMaster:CheckCombat() then
-        return
-    end
-
-    securecall(function()
-        if FishMaster:IsPoleEquipped() then
-			FishMaster:Toolbar();
-            _G['FishMaster_Toolbar']:Show()
-            if FishMaster.db.char.tracker.enabled then
-                _G['FishMaster_Tracker']:Show()
-            else
-                _G['FishMaster_Tracker']:Hide()
-            end
-        else
-            _G['FishMaster_Toolbar']:Hide()
-            _G['FishMaster_Tracker']:Hide()
-        end
-    end)
-end
-
-function FishMaster:IsEnabled()
-    local mainHandID = GetInventoryItemID("player", GetInventorySlotInfo("MainHandSlot"));
-    return FishMaster:GetPole(mainHandID);
-end
-
-function FishMaster:IsLured()
-    if not FishMaster:IsEnabled() then
-        return false, nil;
-    end
-    local mainHand, mainHandExpires, _, mainHandEnchantID = GetWeaponEnchantInfo();
-    return mainHand, mainHandExpires;
-end
-
-function FishMaster:GetProfessionLevel(name)
-    local numSkills = GetNumSkillLines();
-    for i = 1, numSkills do
-        local skillname, _, _, skillrank, _, skillmodifier = GetSkillLineInfo(i)
-        if skillname:lower() == name:lower() then
-            return (skillrank or 0) + (skillmodifier or 0)
-        end
-    end
-
-    return 0
-end
-
-function FishMaster:GetProfessionInfo(name)
-    local numSkills = GetNumSkillLines();
-    for i = 1, numSkills do
-        local skillName, isHeader, isExpanded, skillRank, numTempPoints, skillModifier, skillMaxRank, isAbandonable, stepCost, rankCost, minLevel, skillCostType, skillDescription = GetSkillLineInfo(i)
-        if skillName:lower() == name:lower() then
-            return skillName, skillRank, numTempPoints, skillMaxRank, skillModifier, skillDescription
-        end
-    end
-
-    return nil
-end
-
-function FishMaster:IsBodySlotOneHanded(bodyslot)
-    if (bodyslot == "INVTYPE_2HWEAPON" or bodyslot == INVTYPE_2HWEAPON) then
-        return false;
-    end
-    return true;
-end
-
-function FishMaster:GetSlotButton(button, slotName)
-
-    local children = { button:GetParent():GetChildren() }
-
-    for _, child in ipairs(children) do
-        if (child:GetAttribute("slot") == slotName) then
-            return child;
-        end
-    end
-end
-
-function FishMaster:IsItemOneHanded(item)
-    if (item) then
-        local _, _, _, _, _, _, _, _, bodyslot, _ = GetItemInfo(item);
-        return FishMaster:IsBodySlotOneHanded(bodyslot);
-    end
-    return true;
-end
-
-function FishMaster:CursorCanGoInSlot(button)
-    local secondary = FishMaster:GetSlotButton(button, "SecondaryHand");
-    local mainbutton = FishMaster:GetSlotButton(button, "MainHand");
-
-    if (button == secondary and mainbutton and mainbutton.item) then
-        return FishMaster:IsItemOneHanded(mainbutton.item);
-    end
-    return CursorCanGoInSlot(button:GetID())
-end
-
-function FishMaster:SavePosition(frame)
-    local centerx, centery = frame:GetCenter()
-    local scale = frame:GetScale()
-    local p, f, rp, x, y = "CENTER", "UIParent", "BOTTOMLEFT", centerx * scale, centery * scale
-    FishMaster.db.char.point = {
-        p = p, rf = f, rp = rp, x = x, y = y,
-    }
-end
-
-function FishMaster:FindItemInBags(itemID, used)
-    for i = 0, NUM_BAG_SLOTS do
-        local slotCount
-        if C_Container and C_Container.GetContainerNumSlots then
-            slotCount = C_Container.GetContainerNumSlots(i)
-        else
-            slotCount = GetContainerNumSlots(i)
-        end
-        for z = 1, slotCount do
-            local key = i .. ":" .. z
-            if not used or not used[key] then
-                local foundId
-                if C_Container and C_Container.GetContainerItemID then
-                    foundId = C_Container.GetContainerItemID(i, z)
-                else
-                    foundId = select(10, GetContainerItemInfo(i, z))
-                end
-                if foundId == itemID then
-                    return itemID, i, z
-                end
-            end
-        end
-    end
-    return nil, nil, nil
-end
-
-function FishMaster:EquipItemFromBags(itemID, slotId, used)
-    local _, bag, slot = FishMaster:FindItemInBags(itemID, used)
-    if not bag or not slot then
-        return false
-    end
-    local key = bag .. ":" .. slot
-    if used then
-        used[key] = true
-    end
-    if C_Container and C_Container.PickupContainerItem then
-        C_Container.PickupContainerItem(bag, slot)
-    else
-        PickupContainerItem(bag, slot)
-    end
-    if CursorHasItem() then
-        EquipCursorItem(slotId)
-        ClearCursor()
-        return true
-    end
-    return false
-end
-
-function FishMaster:HasPole()
-    local itemID, bag, slot
-    for key, pole in pairs(_FishMaster.poles) do
-        if GetItemCount(pole) > 0 then
-            return true;
-        end
-    end
-end
-
-function FishMaster:FindBestPole()
-    local itemID, bag, slot
-    for key, pole in pairs(_FishMaster.poles) do
-        itemID, bag, slot = FishMaster:FindItemInBags(pole);
-        if itemID then
-            return itemID, bag, slot
-        end
-    end
-
-    if not itemID then
-        local mainHandID = GetInventoryItemID("player", INVSLOT_MAINHAND);
-
-        for key, pole in pairs(_FishMaster.poles) do
-            if pole == mainHandID then
-                return pole;
-            end
-        end
-    end
-end
-
-function FishMaster:FindBestLure()
-
-    local t;
-
-    if FishMaster.db.char.lowestLure then
-        t = table.reverse(_FishMaster.lures);
-    else
-        t = _FishMaster.lures;
-    end
-
-    for key, lure in pairs(t) do
-        local itemID = FishMaster:FindItemInBags(lure.item);
-        local count = GetItemCount(lure.item);
-        if itemID and count > 0 then
-            return lure;
-        end
-    end
-    return nil;
-end
-
-function FishMaster:IsPoleEquipped()
-    local mainHandID = GetInventoryItemID("player", INVSLOT_MAINHAND);
-    for key, pole in pairs(_FishMaster.poles) do
-        if pole == mainHandID then
-            return true;
-        end
-    end
-    return false;
-end
-
-function FishMaster:FindInSession(name, zone)
-    for key, loot in pairs(_FishMaster.session) do
-        if loot.item == name and loot.zone == zone then
-            return _FishMaster.session[key];
-        end
-    end
-    return nil;
-end
-
-function FishMaster:FindInDatabase(name, zone)
-    for key, loot in pairs(FishMaster.db.char.loot) do
-        if loot.item == name and loot.zone == zone then
-            return FishMaster.db.char.loot[key];
-        end
-    end
-    return nil;
-end
-
-function FishMaster:AddToSession(name, quantity, icon, quality)
-    local zone = GetMinimapZoneText();
-    local loot = FishMaster:FindInSession(name, zone);
-    if loot then
-        loot.quantity = loot.quantity + quantity;
-    else
-
-        loot = {
-            item = name,
-            quantity = quantity,
-            quality = quality,
-            icon = icon,
-            zone = zone
-        }
-
-        table.insert(_FishMaster.session, loot)
-    end
-end
-
-function FishMaster:AddToDatabase(name, quantity, icon, quality)
-
-    local zone = GetMinimapZoneText();
-    local loot = FishMaster:FindInDatabase(name, zone);
-    if loot then
-        loot.quantity = loot.quantity + quantity;
-    else
-
-        loot = {
-            item = name,
-            quantity = quantity,
-            quality = quality,
-            icon = icon,
-            zone = zone
-        }
-
-        table.insert(FishMaster.db.char.loot, loot)
-    end
-
-    FishMaster:AddToSession(name, quantity, icon, quality);
-
-    FishMaster:Trigger("LootAdded", loot);
-end
-
-function FishMaster:AddLoot()
-    local loot = {};
-    local count = GetNumLootItems()
-
-    for i = 1, count do
-        local lIcon, lName, lQuantity, currencyID, lQuality, locked, isQuestItem = GetLootSlotInfo(i)
-        local lLink = GetLootSlotLink(i)
-        local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount,
-        itemEquipLoc, itemIcon, itemSellPrice, itemClassID, itemSubClassID, bindType, expacID, itemSetID,
-        isCraftingReagent = GetItemInfo(lLink);
-
-        if not isQuestItem then
-            if not itemName then
-                itemName = lName
-            end
-            if not itemIcon then
-                itemIcon = lIcon
-            end
-            if not itemRarity then
-                itemRarity = lQuality
-            end
-            if itemName then
-                FishMaster:AddToDatabase(itemName, tonumber(lQuantity) or 1, itemIcon, itemRarity or 0);
-            end
-        end
-    end
-end
-
-function FishMaster:FindLure(item)
-    for key, lure in pairs(_FishMaster.lures) do
-        if lure.item == item then
-            return lure;
-        end
-    end
-    return nil;
+function FishMaster:GetItemCount(item)
+    return API.ItemCount(item)
 end
 
 function FishMaster:CheckCombat()
-    return InCombatLockdown() or UnitAffectingCombat("player") or UnitAffectingCombat("pet")
+    return InCombatLockdown() or UnitAffectingCombat("player")
 end
 
-function FishMaster:CheckForDoubleClick(button)
-    if (button and button ~= "RightButton") then
-        FishMaster:debug("DoubleClick ignored: button", button)
-        return false;
+function FishMaster:IsPoleEquipped()
+    return API.IsPole(GetInventoryItemID("player", 16))
+end
+
+function FishMaster:IsLured()
+    if not self:IsPoleEquipped() then return false end
+    if C_PaperDollInfo.GetTemporaryEnchantmentInfo then
+        local enchant = C_PaperDollInfo.GetTemporaryEnchantmentInfo(16)
+        return enchant ~= nil, enchant and enchant.remainingTimeMs or 0
     end
-    if (not LootFrame:IsShown() and self.lastClickTime) then
-        local pressTime = GetTime();
-        local doubleTime = pressTime - self.lastClickTime;
-        FishMaster:debug("DoubleClick delta", doubleTime)
-        if ((doubleTime < 0.4) and (doubleTime > 0.05)) then
-            self.lastClickTime = nil;
-            FishMaster:debug("DoubleClick detected")
-            return true;
+    return GetWeaponEnchantInfo()
+end
+
+function FishMaster:FindBestPole()
+    -- Preserve the curated pole order, then accept new Forever fishing poles.
+    for _, pole in ipairs(ns.poles) do
+        if API.FindItem(pole) or GetInventoryItemID("player", 16) == pole then return pole end
+    end
+    if self:IsPoleEquipped() then return GetInventoryItemID("player", 16) end
+    for bag = 0, NUM_BAG_SLOTS or 4 do
+        for slot = 1, C_Container.GetContainerNumSlots(bag) do
+            local item = C_Container.GetContainerItemID(bag, slot)
+            if API.IsPole(item) then return item end
         end
     end
-    self.lastClickTime = GetTime();
-    FishMaster:debug("DoubleClick prime", self.lastClickTime)
-    return false;
 end
 
-function FishMaster:OnWorldFrameMouseDown(frame, button)
-    FishMaster:debug("WorldFrame mouse down", button)
-    if not self.db.char.easyCast or self:CheckCombat() or not self:IsPoleEquipped() then
-        FishMaster:debug(
-            "EasyCast blocked",
-            "easyCast", self.db.char.easyCast,
-            "combat", self:CheckCombat(),
-            "pole", self:IsPoleEquipped()
-        )
-        return
-    end
-    if self:CheckForDoubleClick(button) then
-        if IsMouselooking() then
-            MouselookStop()
+function FishMaster:HasPole()
+    return self:FindBestPole() ~= nil
+end
+
+function FishMaster:FindBestLure()
+    local skill = self:GetProfessionLevel(API.FishingName())
+    local best
+    for _, lure in ipairs(ns.lures) do
+        if skill >= lure.skill and API.FindItem(lure.item) then
+            if not best or (self.db.char.lowestLure and lure.bonus < best.bonus)
+                or (not self.db.char.lowestLure and lure.bonus > best.bonus) then
+                best = lure
+            end
         end
-        FishMaster:debug("EasyCast override set")
-        self:SetOverride()
     end
+    return best
 end
 
-function FishMaster:SetOverride()
-
-    local toolbar = _G['FishMaster_Toolbar'];
-    if not toolbar or not toolbar.cast then
-        FishMaster:debug("Override failed: toolbar/cast missing")
-        return
-    end
-    local button = toolbar.cast;
-    button:SetScript("PostClick", function()
-        FishMaster_CastFrame:Show();
-    end);
-    SetOverrideBindingClick(button, true, "BUTTON2", button:GetName());
-    FishMaster:debug("Override bound", button:GetName())
-end
-
-function FishMaster:ResetOverride()
-    local toolbar = _G['FishMaster_Toolbar'];
-    if not toolbar or not toolbar.cast then
-        FishMaster:debug("Reset override: toolbar/cast missing")
-        return
-    end
-    local button = toolbar.cast;
-    button:SetScript("PostClick", nil);
-    ClearOverrideBindings(FishMaster_Toolbar.cast);
-    FishMaster_CastFrame:Hide();
-    FishMaster:debug("Override cleared")
-end
-
-function FishMaster:OnBagUpdate()
-    FishMaster:CheckEnabled()
-    FishMaster:UpdateModel()
-    FishMaster:Trigger("InventoryChanged")
-end
-
-function FishMaster:OnEquipmentChanged()
-    FishMaster:CheckEnabled()
-    FishMaster:UpdateModel()
-    FishMaster:Trigger("EquipmentChanged")
-end
-
-function FishMaster:OnSkillLinesChanged()
-    FishMaster:Trigger("SkillLineChanged")
-end
-
-local function isFishingLootNow()
-    if type(IsFishingLoot) == "function" then
-        return IsFishingLoot()
-    end
-    if C_Loot and type(C_Loot.IsFishingLoot) == "function" then
-        return C_Loot.IsFishingLoot()
-    end
-    if _FishMaster.isFishing then
-        return true
-    end
-    if _FishMaster.lastFishingCastTime and (GetTime() - _FishMaster.lastFishingCastTime) < 6 then
-        return true
-    end
-    return false
-end
-
-function FishMaster:OnLootOpened()
-    if isFishingLootNow() then
-        FishMaster:AddLoot()
-        _FishMaster.isFishing = false
-    end
-end
-
-function FishMaster:OnLootReady()
-    if isFishingLootNow() then
-        FishMaster:AddLoot()
-        _FishMaster.isFishing = false
-    end
-end
-
-function FishMaster:OnSpellcastStart(unit, _, spellID)
-    if unit ~= "player" then
-        return
-    end
-
-    if GetSpellInfo(spellID) ~= PROFESSIONS_FISHING then
-        _FishMaster.isCasting = true
-        return
-    end
-
-    _FishMaster.lastFishingCastTime = GetTime()
-    _FishMaster.isFishing = true
-    _FishMaster.isCasting = false
-end
-
-function FishMaster:OnSpellcastStop(unit)
-    if unit ~= "player" then
-        return
-    end
-    _FishMaster.isCasting = false
-    _FishMaster.isFishing = true
-end
-
-function FishMaster:OnPlayerEnteringWorld()
-    FishMaster:Trigger("loaded")
-end
-
-function FishMaster:OnPlayerLeavingWorld()
-    FishMaster:ResetOverride()
-end
-
-function FishMaster:OnVariablesLoaded()
-    if _FishMaster.worldFrameHooked then
-        return
-    end
-    _FishMaster.worldFrameHooked = true
-    FishMaster:SecureHookScript(WorldFrame, "OnMouseDown", "OnWorldFrameMouseDown")
-end
-
-function FishMaster:OnPickupContainerItem(bag, slot)
-    local itemID
-    if C_Container and C_Container.GetContainerItemInfo then
-        local info = C_Container.GetContainerItemInfo(bag, slot)
-        if type(info) == "table" then
-            itemID = info.itemID
-        else
-            itemID = select(10, C_Container.GetContainerItemInfo(bag, slot))
-        end
+function FishMaster:Toggle()
+    if self:CheckCombat() then self:Print(self:translate("error.combat")); return end
+    if ns.isCasting then return end
+    if CursorHasItem() then self:Print(self:translate("error.cursor")); return end
+    if self.db.char.enabled then
+        self:RestoreOutfit()
     else
-        itemID = select(10, GetContainerItemInfo(bag, slot))
+        self:EquipOutfit()
     end
-
-    _FishMaster.dragging.bag = bag
-    _FishMaster.dragging.slot = slot
-    _FishMaster.dragging.item = itemID
+    self:Refresh()
 end
 
-function FishMaster:OnPickupInventoryItem(slot)
-    _FishMaster.dragging.bag = nil
-    _FishMaster.dragging.slot = slot
-    _FishMaster.dragging.item = GetInventoryItemID("player", slot)
+function FishMaster:EquipOutfit()
+    local settings = self.db.char
+    if settings.autoEquip then
+        local pole = self:FindBestPole()
+        if not pole then self:Print(self:translate("error.noPole")); return end
+        settings.outfit.MainHandSlot = pole
+    end
+    if not API.IsPole(settings.outfit.MainHandSlot) and not self:IsPoleEquipped() then
+        self:Print(self:translate("error.noPole")); return
+    end
+    -- Validate before replacing the restoration snapshot.
+    for _, slot in ipairs(ns.slots) do
+        local item = settings.outfit[slot.name]
+        if item and GetInventoryItemID("player", slot.id) ~= item and not API.FindItem(item) then
+            self:Print(self:translate("error.missingItem", API.ItemInfo(item) or tostring(item)))
+            return
+        end
+    end
+    settings.storedOutfit = {}
+    for _, slot in ipairs(ns.slots) do
+        settings.storedOutfit[slot.name] = GetInventoryItemID("player", slot.id) or false
+    end
+    settings.enabled = true
+    -- Equip the main hand first: two-handed poles can displace the off hand.
+    local success = true
+    if settings.outfit.MainHandSlot then
+        success = API.Equip(settings.outfit.MainHandSlot, 16)
+    end
+    local _, _, _, equipLocation = C_Item.GetItemInfoInstant(settings.outfit.MainHandSlot or GetInventoryItemID("player", 16) or 0)
+    for _, slot in ipairs(ns.slots) do
+        local item = settings.outfit[slot.name]
+        if slot.id ~= 16 and item and not (slot.id == 17 and equipLocation == "INVTYPE_2HWEAPON") then
+            if not API.Equip(item, slot.id) then success = false end
+        end
+    end
+    if not success then self:Print(self:translate("error.equip")) end
+    self:SetAudio()
 end
 
-function FishMaster:ItemSlotChange(event, slot, item)
-    FishMaster.db.char.outfit[slot] = item;
-end
-
-function FishMaster:SaveAudio()
-    FishMaster.db.char.defaultAudio["Sound_EnableAllSound"] = GetCVar("Sound_EnableAllSound");
-    FishMaster.db.char.defaultAudio["Sound_EnableSFX"] = GetCVar("Sound_EnableSFX");
-    FishMaster.db.char.defaultAudio["Sound_EnableAmbience"] = GetCVar("Sound_EnableAmbience");
-    FishMaster.db.char.defaultAudio["Sound_MasterVolume"] = GetCVar("Sound_MasterVolume");
-    FishMaster.db.char.defaultAudio["Sound_SFXVolume"] = GetCVar("Sound_SFXVolume");
-    FishMaster.db.char.defaultAudio["Sound_MusicVolume"] = GetCVar("Sound_MusicVolume");
-end
-
-function FishMaster:SetAudio(save)
-
-    if not FishMaster.db.char.enabled then
+function FishMaster:RestoreOutfit()
+    local settings = self.db.char
+    local success = true
+    -- Restore weapons before other slots; restore originally empty slots too.
+    local order = { "MainHandSlot", "SecondaryHandSlot" }
+    for _, slot in ipairs(ns.slots) do
+        if slot.id ~= 16 and slot.id ~= 17 then table.insert(order, slot.name) end
+    end
+    for _, slotName in ipairs(order) do
+        for _, slot in ipairs(ns.slots) do
+            if slot.name == slotName then
+                local item = settings.storedOutfit[slotName]
+                if item == false then
+                    if not API.EmptySlot(slot.id) then success = false end
+                elseif item then
+                    if not API.Equip(item, slot.id) then success = false end
+                end
+                break
+            end
+        end
+    end
+    if not success then
+        self:Print(self:translate("error.restore"))
         return
     end
+    settings.enabled = false
+    settings.storedOutfit = {}
+    self:UnsetAudio()
+end
 
-    if not FishMaster.db.char.audio.enabled then
-        FishMaster:UnsetAudio();
-        return
+local soundValues = {
+    Sound_EnableAllSound = "1", Sound_EnableSFX = "1", Sound_EnableAmbience = "0",
+    Sound_MasterVolume = "1", Sound_SFXVolume = "1", Sound_MusicVolume = "0",
+}
+
+function FishMaster:SetAudio()
+    local settings = self.db.char
+    if not settings.enabled or not settings.audio.enabled then self:UnsetAudio(); return end
+    for key, default in pairs(soundValues) do
+        if key ~= "Sound_EnableAllSound" or settings.audio.force then
+            if settings.defaultAudio[key] == nil then
+                settings.defaultAudio[key] = C_CVar.GetCVar(key)
+            end
+            local value = default
+            if key == "Sound_MasterVolume" or key == "Sound_SFXVolume" then value = tostring(settings.audio.volume) end
+            C_CVar.SetCVar(key, value)
+        elseif settings.defaultAudio[key] then
+            C_CVar.SetCVar(key, settings.defaultAudio[key])
+            settings.defaultAudio[key] = nil
+        end
     end
-
-    if save then
-        FishMaster:SaveAudio();
-
-    end
-
-    if FishMaster.db.char.audio.force then
-        SetCVar("Sound_EnableAllSound", true);
-    end
-    SetCVar("Sound_EnableSFX", true);
-    SetCVar("Sound_EnableAmbience", false);
-    SetCVar("Sound_MasterVolume", FishMaster.db.char.audio.volume);
-    SetCVar("Sound_SFXVolume", FishMaster.db.char.audio.volume);
-    SetCVar("Sound_MusicVolume", 0);
-
 end
 
 function FishMaster:UnsetAudio()
-    for key, value in pairs(FishMaster.db.char.defaultAudio) do
-        SetCVar(key, FishMaster.db.char.defaultAudio[key]);
-        FishMaster.db.char.defaultAudio[key] = nil;
+    for key, value in pairs(self.db.char.defaultAudio) do
+        C_CVar.SetCVar(key, value)
+        self.db.char.defaultAudio[key] = nil
     end
 end
 
-function FishMasterFrameTab_OnClick(self)
-    PlaySound(SOUNDKIT.IG_CHARACTER_INFO_TAB);
-    FishMasterSwitchTabs(self:GetID());
-end
-
-function FishMasterSwitchTabs(newID)
-
-    local FISHMASTERFRAME_SUBFRAMES = {
-        _FishMaster.frame:GetName() .. "Outfit",
-        _FishMaster.frame:GetName() .. "Settings",
-        _FishMaster.frame:GetName() .. "Loot"
-    };
-
-    local newFrame = _G[FISHMASTERFRAME_SUBFRAMES[newID]];
-    local oldFrame = _G[FISHMASTERFRAME_SUBFRAMES[PanelTemplates_GetSelectedTab(_FishMaster.frame)]];
-    if (newFrame) then
-        if (oldFrame) then
-            oldFrame:Hide();
+local function addCatch(list, catch)
+    for _, entry in ipairs(list) do
+        if (entry.itemID and entry.itemID == catch.itemID or entry.item == catch.item) and entry.zone == catch.zone then
+            entry.quantity = (entry.quantity or 0) + catch.quantity
+            entry.itemID, entry.link = catch.itemID, catch.link
+            return
         end
-        PanelTemplates_SetTab(_FishMaster.frame, newID);
-        newFrame:Show();
     end
+    local entry = {}
+    for key, value in pairs(catch) do entry[key] = value end
+    table.insert(list, entry)
+end
+
+function FishMaster:OnLoot()
+    if ns.lootRecorded then return end
+    local fishingLoot
+    if C_Loot and C_Loot.IsFishingLoot then
+        fishingLoot = C_Loot.IsFishingLoot()
+    elseif IsFishingLoot then
+        fishingLoot = IsFishingLoot()
+    else
+        fishingLoot = ns.lastFishingCast and GetTime() - ns.lastFishingCast < 30 and self:IsPoleEquipped()
+    end
+    if not fishingLoot then return end
+    local total = GetNumLootItems()
+    if total == 0 then return end
+    ns.lootRecorded = true
+    ns.lastFishingCast = nil
+    for index = 1, total do
+        local link = GetLootSlotLink(index)
+        if link then
+            local icon, lootName, quantity, _, quality, _, quest = GetLootSlotInfo(index)
+            if not quest then
+                local itemID = tonumber(link:match("item:(%d+)"))
+                local catch = {
+                    itemID = itemID, link = link, item = lootName,
+                    quantity = tonumber(quantity) or 1, icon = icon,
+                    quality = quality or 0, zone = GetMinimapZoneText(),
+                }
+                if catch.item then
+                    addCatch(self.db.char.loot, catch)
+                    addCatch(ns.session, catch)
+                end
+            end
+        end
+    end
+    self:Refresh()
+end
+
+function FishMaster:GetCatches(session, zone, hideTrash)
+    local totals, result, count = {}, {}, 0
+    for _, entry in ipairs(session and ns.session or self.db.char.loot) do
+        if (not zone or entry.zone == zone) and (not hideTrash or (entry.quality or 0) > 0) then
+            local key = entry.itemID or entry.item
+            if key then
+                if not totals[key] then
+                    totals[key] = { item = entry.item, itemID = entry.itemID, link = entry.link,
+                        icon = entry.icon, quality = entry.quality or 0, quantity = 0 }
+                    table.insert(result, totals[key])
+                end
+                totals[key].quantity = totals[key].quantity + (entry.quantity or 0)
+                count = count + (entry.quantity or 0)
+            end
+        end
+    end
+    table.sort(result, function(a, b)
+        if a.quantity == b.quantity then return (a.item or "") < (b.item or "") end
+        return a.quantity > b.quantity
+    end)
+    return result, count
+end
+
+function FishMaster:OnSpellStart(_, unit, _, spellID)
+    if unit ~= "player" then return end
+    if self:CheckCombat() then return end
+    ns.isCasting = true
+    if API.SpellName(spellID) == API.FishingName() then ns.lastFishingCast = GetTime() end
+end
+
+function FishMaster:OnSpellStop(event, unit)
+    if unit ~= "player" then return end
+    ns.isCasting = false
+    if event == "UNIT_SPELLCAST_INTERRUPTED" or event == "UNIT_SPELLCAST_FAILED" then
+        ns.lastFishingCast = nil
+    end
+end
+
+function FishMaster:Refresh()
+    if not self.db then return end
+    if self:CheckCombat() then ns.refreshPending = true; return end
+    ns.refreshPending = false
+    self.toolbar:Refresh()
+    self.tracker:Refresh()
+    self.equipment:Refresh()
+end
+
+function FishMaster:SettingsChanged()
+    self:SetAudio()
+    if self.db.profile.minimap.hide then self.minimap:Hide("FishMasterMinimapIcon")
+    else self.minimap:Show("FishMasterMinimapIcon") end
+    self:Refresh()
 end

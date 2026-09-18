@@ -1,5 +1,4 @@
 local name, _FishMaster = ...;
-local CallbackHandler = LibStub("CallbackHandler-1.0")
 
 FishMaster = LibStub("AceAddon-3.0"):NewAddon(
     "FishMaster",
@@ -7,20 +6,13 @@ FishMaster = LibStub("AceAddon-3.0"):NewAddon(
     "AceEvent-3.0",
     "AceBucket-3.0",
     "AceTimer-3.0",
-    "AceComm-3.0",
-    "AceSerializer-3.0",
-    "AceHook-3.0",
-    "FishEvents-1.0"
+    "AceHook-3.0"
 )
 
 _FishMaster.name = name;
-_FishMaster.version = C_AddOns.GetAddOnMetadata(name, "version");
+_FishMaster.version = C_AddOns.GetAddOnMetadata(name, "Version");
 
 _FishMaster.iconPath = "Interface\\AddOns\\" .. _FishMaster.name .. "\\images\\"
-
-_FishMaster.equipped = false;
-_FishMaster.lured = false;
-_FishMaster.settings = {};
 
 _FishMaster.poles = {
     19970, -- Arcanite Fishing Pole

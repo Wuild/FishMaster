@@ -1,181 +1,92 @@
-local name, _FishMaster = ...;
+local name, ns = ...
+local API = ns.API
 
---_FishMaster.callbacks = LibStub("CallbackHandler-1.0"):New(_FishMaster)
-function dump(o)
-    if type(o) == 'table' then
-        local s = '{ '
-        for k, v in pairs(o) do
-            if type(k) ~= 'number' then
-                k = '"' .. k .. '"'
-            end
-            s = s .. '[' .. k .. '] = ' .. dump(v) .. ','
-        end
-        return s .. '} '
-    else
-        return tostring(o)
+function FishMaster:MigrateSettings()
+    local settings = self.db.char
+    -- AceDB fills missing defaults; only move the old misplaced trash option.
+    if settings.hideTrash ~= nil then
+        settings.tracker.hideTrash = settings.hideTrash
+        settings.hideTrash = nil
     end
-end
-
-local minimapIcon = LibStub("LibDataBroker-1.1"):NewDataObject("FishMasterMinimapIcon", {
-    type = "data source",
-    text = _FishMaster.name,
-    icon = _FishMaster.iconPath .. "Fishhook",
-
-    OnClick = function(self, button)
-        if button == "LeftButton" then
-            FishMaster:Toggle();
-        elseif button == "RightButton" then
-            FishMaster.equipment:Toggle()
-            --InterfaceOptionsFrame_OpenToCategory(name)
-            --InterfaceOptionsFrame_OpenToCategory(name) -- run it again to set the correct tab
-        end
-    end,
-
-    OnTooltipShow = function(tooltip)
-        tooltip:SetText(_FishMaster.name .. " |cFF00FF00" .. _FishMaster.version .. "|r");
-        tooltip:AddLine(FishMaster:Colorize(FishMaster:translate("minimap.left_click"), 'gray') .. ": " .. FishMaster:translate("minimap.left_click_text"));
-        tooltip:AddLine(FishMaster:Colorize(FishMaster:translate("minimap.right_click"), 'gray') .. ": " .. FishMaster:translate("minimap.right_click_text"));
-    end,
-});
-
-function FishMaster:Toggle()
-    if _FishMaster.isCasting then
-        return ;
+    settings.schemaVersion = 2
+    if settings.firstRun then
+        settings.outfit.MainHandSlot = self:FindBestPole()
+        settings.firstRun = false
     end
-
-    FishMaster.db.char.enabled = not FishMaster.db.char.enabled;
-    FishMaster:CheckEnabled();
-    FishMaster:ToggleGear();
-end
-
-function FishMaster:ToggleGear()
-    if FishMaster:CheckCombat() then
-        return
-    end
-    securecall(function()
-        local used = {}
-        if FishMaster.db.char.enabled then
-
-            if not FishMaster:HasPole() then
-                return
-            end
-
-            if FishMaster.db.char.autoEquip then
-                FishMaster.db.char.outfit["MainHandSlot"] = FishMaster:FindBestPole()
-            end
-
-            for key, slot in pairs(FishMaster:SlotInfo()) do
-                FishMaster.db.char.storedOutfit[slot.name] = GetInventoryItemID("player", slot.id);
-            end
-
-            for slot, item in pairs(FishMaster.db.char.outfit) do
-                local s = FishMaster:FindSlotInfo(slot);
-                if s and item then
-                    FishMaster:EquipItemFromBags(item, s.id, used)
-                end
-            end
-            FishMaster:SetAudio(true)
-        else
-            for key, slot in pairs(FishMaster:SlotInfo()) do
-                local storedItem = FishMaster.db.char.storedOutfit[slot.name]
-                if storedItem and GetInventoryItemID("player", slot.id) ~= storedItem then
-                    FishMaster:EquipItemFromBags(storedItem, slot.id, used)
-                end
-            end
-            FishMaster:UnsetAudio()
-        end
-    end)
-
 end
 
 function FishMaster:GatherSlash(input)
-    input = string.trim(input, " ");
-    if input == "" or not input then
-        FishMaster:Toggle()
-        return ;
-    elseif input == "config" then
-        FishMaster.equipment:Toggle()
-    end
+    local command = (input or ""):match("^%s*(.-)%s*$"):lower()
+    if command == "" or command == "toggle" then self:Toggle()
+    elseif command == "config" or command == "configs" or command == "outfit" then self.equipment:Toggle()
+    elseif command == "loot" then
+        self.equipment.frame:Show()
+        self.equipment:SelectTab(3)
+    else self:Print(self:translate("commands.help")) end
 end
 
 function FishMaster:OnInitialize()
-    self.db = LibStub("AceDB-3.0"):New("FishMasterSettings", _FishMaster.configsDefaults, true)
+    self.db = LibStub("AceDB-3.0"):New("FishMasterSettings", ns.configsDefaults, true)
+    ns.slots = API.AvailableSlots()
+    self:MigrateSettings()
     self.minimap = LibStub("LibDBIcon-1.0")
-    FishMaster.minimap:Register("FishMasterMinimapIcon", minimapIcon, self.db.profile.minimap)
-
-    FishMaster:debug(_FishMaster.name, "has been loaded")
-
-    FishMaster:On("OnItemSlotChange", "ItemSlotChange")
-
-    FishMaster:On("Settings", function()
-        FishMaster:CheckEnabled();
-        local parent = _G['FishMaster_Toolbar'];
-        FishMaster:ToolbarCast(parent.cast)
-
-        FishMaster.tracker.Update()
-        FishMaster.tracker.SetInfo();
-        FishMaster:debug("Settings has been saved")
-    end)
-
-    FishMaster:RegisterChatCommand("fmaster", "GatherSlash")
-    FishMaster:RegisterChatCommand("fishmaster", "GatherSlash")
-
-    if FishMaster.db.char.firstRun then
-        local pole = FishMaster:FindBestPole();
-        if pole then
-            FishMaster.db.char.outfit["MainHandSlot"] = pole;
-        end
-        FishMaster.db.char.firstRun = false;
-    end
-
-    FishMaster.equipment:OnLoad()
-
-    FishMaster:On("loaded", function()
-        FishMaster.tracker.Load()
-        FishMaster.tracker.SetInfo();
-    end)
-
-    FishMaster:On("LootAdded", function()
-        FishMaster:debug("Loot added")
-        FishMaster.tracker.Update()
-        FishMaster.tracker.SetInfo();
-        if FishMaster.lootTab then
-            FishMaster.lootTab:Update()
-        end
-    end)
-
-    FishMaster:On("SkillLineChanged", function()
-        FishMaster:debug("Skill line changed")
-        FishMaster.tracker.SetInfo();
-        FishMaster.equipment.SetInfo();
-    end)
+    local broker = LibStub("LibDataBroker-1.1"):NewDataObject("FishMasterMinimapIcon", {
+        type = "data source", text = "FishMaster", icon = ns.iconPath .. "Fishhook",
+        OnClick = function(_, button)
+            if button == "RightButton" then self.equipment:Toggle()
+            else self:Toggle() end
+        end,
+        OnTooltipShow = function(tooltip)
+            tooltip:SetText("FishMaster |cff69ccf0Forever|r")
+            tooltip:AddLine(self:translate("minimap.left_click_text"), 1, 1, 1)
+            tooltip:AddLine(self:translate("minimap.right_click_text"), 1, 1, 1)
+        end,
+    })
+    self.minimap:Register("FishMasterMinimapIcon", broker, self.db.profile.minimap)
+    self.equipment:Create()
+    self.toolbar:Create()
+    self.tracker:Create()
+    self:RegisterChatCommand("fmaster", "GatherSlash")
+    self:RegisterChatCommand("fishmaster", "GatherSlash")
 end
 
 function FishMaster:OnEnable()
-    FishMaster:RegisterEvent("PLAYER_EQUIPMENT_CHANGED", "OnEquipmentChanged")
-    FishMaster:RegisterBucketEvent("BAG_UPDATE", 0.2, "OnBagUpdate")
-    FishMaster:RegisterEvent("LOOT_OPENED", "OnLootOpened")
-    FishMaster:RegisterEvent("SKILL_LINES_CHANGED", "OnSkillLinesChanged")
-    FishMaster:RegisterEvent("PLAYER_ENTERING_WORLD", "OnPlayerEnteringWorld")
-    FishMaster:RegisterEvent("PLAYER_LEAVING_WORLD", "OnPlayerLeavingWorld")
-    FishMaster:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START", "OnSpellcastStart")
-    FishMaster:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP", "OnSpellcastStop")
-    FishMaster:RegisterEvent("UNIT_SPELLCAST_START", "OnSpellcastStart")
-    FishMaster:RegisterEvent("UNIT_SPELLCAST_STOP", "OnSpellcastStop")
-    FishMaster:RegisterEvent("VARIABLES_LOADED", "OnVariablesLoaded")
-    FishMaster:RegisterEvent("LOOT_READY", "OnLootReady")
-
-    FishMaster:OnVariablesLoaded()
-    FishMaster:CheckEnabled()
-    FishMaster:SetAudio()
+    self:RegisterBucketEvent("BAG_UPDATE_DELAYED", .2, "Refresh")
+    for _, event in ipairs({ "PLAYER_EQUIPMENT_CHANGED", "SKILL_LINES_CHANGED", "PLAYER_ENTERING_WORLD",
+        "ZONE_CHANGED", "ZONE_CHANGED_INDOORS", "ZONE_CHANGED_NEW_AREA", "GET_ITEM_INFO_RECEIVED" }) do
+        self:RegisterEvent(event, "Refresh")
+    end
+    self:RegisterEvent("LOOT_READY", "OnLoot")
+    self:RegisterEvent("LOOT_OPENED", "OnLoot")
+    self:RegisterEvent("LOOT_CLOSED", function() ns.lootRecorded = false end)
+    self:RegisterEvent("PLAYER_REGEN_ENABLED", function()
+        self.toolbar:ClearOverride()
+        self:Refresh()
+    end)
+    self:RegisterEvent("PLAYER_REGEN_DISABLED", function() self.toolbar:ClearOverride() end)
+    self:RegisterEvent("UNIT_SPELLCAST_START", "OnSpellStart")
+    self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START", "OnSpellStart")
+    self:RegisterEvent("UNIT_SPELLCAST_STOP", "OnSpellStop")
+    self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP", "OnSpellStop")
+    self:RegisterEvent("UNIT_SPELLCAST_FAILED", "OnSpellStop")
+    self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED", "OnSpellStop")
+    self:RegisterEvent("PLAYER_LOGOUT", "UnsetAudio")
+    if not self:IsHooked(WorldFrame, "OnMouseDown") then
+        self:SecureHookScript(WorldFrame, "OnMouseDown", function(...) self.toolbar:OnWorldMouseDown(...) end)
+    end
+    self.tick = self:ScheduleRepeatingTimer(function() self.toolbar:Tick() end, .1)
+    self.lureTick = self:ScheduleRepeatingTimer(function() self.toolbar:Refresh() end, 1)
+    self:SettingsChanged()
 end
 
 function FishMaster:OnDisable()
-    FishMaster:ResetOverride()
-    if _G["FishMaster_Toolbar"] then
-        _G["FishMaster_Toolbar"]:Hide()
-    end
-    if _G["FishMaster_Tracker"] then
-        _G["FishMaster_Tracker"]:Hide()
-    end
+    self:CancelAllTimers()
+    self:UnregisterAllEvents()
+    self:UnregisterAllBuckets()
+    self:UnhookAll()
+    self.toolbar:ClearOverride()
+    self:UnsetAudio()
+    if not InCombatLockdown() then self.toolbar.frame:Hide() end
+    self.tracker.frame:Hide()
+    self.equipment.frame:Hide()
 end
