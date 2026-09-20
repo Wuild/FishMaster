@@ -153,7 +153,7 @@ def build_archive(version):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--version", required=True, help="Release version, e.g. 2.0.0-forever")
+    parser.add_argument("--version", required=True, help="Release version, e.g. 3.0.0")
     parser.add_argument("--changelog", type=Path, help="Optional UTF-8 Markdown release notes")
     parser.add_argument("--env-file", type=Path, default=ROOT / ".env", help="Configuration file (default: repository .env)")
     mode = parser.add_mutually_exclusive_group()

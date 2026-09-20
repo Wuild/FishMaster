@@ -37,6 +37,8 @@ function methods:GetText() return self.text end
 function methods:GetStringHeight() return math.ceil(#(self.text or "") / 60) * 12 end
 function methods:SetAtlas(atlas, useAtlasSize) self.atlas, self.useAtlasSize = atlas, useAtlasSize end
 function methods:SetDrawLayer(layer) self.drawLayer = layer end
+function methods:SetDesaturated(value) self.desaturated = value end
+function methods:SetVertexColor(r, g, b) self.vertexColor = { r, g, b } end
 function methods:SetTexture(value) self.texture = value end
 function methods:CreateFontString(name) return node("FontString", name, self) end
 function methods:CreateTexture(name, layer, template)
@@ -49,6 +51,14 @@ function methods:CreateTexture(name, layer, template)
 end
 function methods:SetNormalTexture(path) self.normal = self:CreateTexture(); self.normal:SetTexture(path) end
 function methods:GetNormalTexture() return self.normal end
+function methods:CreateMaskTexture() return node("MaskTexture", nil, self) end
+function methods:AddMaskTexture(mask) self.mask = mask end
+function methods:SetAlpha(alpha) self.alpha = alpha end
+function methods:SetNormalAtlas(atlas) self.normal = self:CreateTexture(); self.normal:SetAtlas(atlas) end
+function methods:SetPushedAtlas(atlas) self.pushed = self:CreateTexture(); self.pushed:SetAtlas(atlas) end
+function methods:SetHighlightAtlas(atlas) self.highlight = self:CreateTexture(); self.highlight:SetAtlas(atlas) end
+function methods:GetPushedTexture() return self.pushed end
+function methods:GetHighlightTexture() return self.highlight end
 function methods:SetPushedTexture(path) self.pushed = path end
 function methods:SetHighlightTexture(path) self.highlight = path end
 function methods:EnableMouse(enabled) self.mouseEnabled = enabled end
@@ -199,6 +209,33 @@ for _, button in pairs(FishMaster.equipment.slots) do
     assert(normal.texture == "Interface\\Buttons\\UI-Quickslot2")
     assert(normal.point[1] == "CENTER" and normal.point[3] == -1)
 end
+-- HUD visuals must use Forever's actionbar atlases without changing secure actions.
+local cast = FishMaster.toolbar.cast
+assert(cast:GetWidth() == 45 and cast.template == "SecureActionButtonTemplate")
+local actionButtons = { cast }
+local previousAction = cast
+for _, button in ipairs(FishMaster.toolbar.lures) do
+    assert(button:GetWidth() == 30 and button:GetWidth() < cast:GetWidth())
+    assert(button.point[2] == previousAction and button.point[4] == 2)
+    previousAction = button
+    assert(button.template == "SecureActionButtonTemplate")
+    assert(button.alpha == nil, "Unavailable lures must not fade their actionbar frames")
+    table.insert(actionButtons, button)
+end
+for _, button in ipairs(actionButtons) do
+    assert(button:GetNormalTexture().atlas == "UI-HUD-ActionBar-IconFrame")
+    assert(button:GetPushedTexture().atlas == "UI-HUD-ActionBar-IconFrame-Down")
+    assert(button:GetHighlightTexture().atlas == "UI-HUD-ActionBar-IconFrame-Mouseover")
+    assert(button:GetHighlightTexture().drawLayer == "HIGHLIGHT", "Hover artwork must not render as a permanent overlay")
+    assert(button:GetNormalTexture().drawLayer == "OVERLAY")
+    assert(button:GetNormalTexture().alpha == 0)
+    assert(button.slotArt.alpha == 0)
+    assert(not button:GetHighlightTexture().desaturated)
+    assert(button.slotArt.desaturated == true)
+    assert(button.icon.mask == button.iconMask)
+    assert(button.iconMask.atlas == "UI-HUD-ActionBar-IconFrame-Mask")
+    assert(button.iconMask:GetWidth() == button:GetWidth() * 1.5)
+end
 for index = 1, 3 do
     FishMaster.equipment:SelectTab(index)
     assert(FishMaster.equipment.frame:GetWidth() == 540)
@@ -313,6 +350,12 @@ equipmentChanged()
 assert(FishMaster.db.char.enabled and C_CVar.GetCVar("Sound_MasterVolume") == "0.35")
 assert(FishMaster.toolbar.frame:IsShown())
 assert(FishMaster.toolbar.cast:GetAttribute("type1") == "item")
+for _, button in ipairs(FishMaster.toolbar.lures) do
+    assert(button.alpha == nil, "Lure borders must remain visible when unavailable")
+    local usable = ns.API.ItemCount(button.lure.item) > 0
+        and FishMaster:GetProfessionLevel(ns.API.FishingName()) >= button.lure.skill
+    assert(button.icon.alpha == (usable and 1 or .4))
+end
 assert(FishMaster.toolbar.cast:GetAttribute("target-slot1") == 16)
 C_PaperDollInfo.GetTemporaryEnchantmentInfo = function() return { remainingTimeMs = 60000 } end
 FishMaster.toolbar:Refresh()

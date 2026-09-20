@@ -99,6 +99,49 @@ function UI.IconButton(parent, size, secure, name, borderless)
     return button
 end
 
+-- Forever action-button artwork, pinned to wow-ui-source 70ef1b2.
+-- See Mainline/ActionButtonTemplate.xml and Shared/ActionButton.lua.
+-- Use the visuals on our secure spell/item buttons; action-slot mixins manage
+-- Blizzard's bars and would overwrite FishMaster's click attributes.
+function UI.ActionButton(parent, size, name)
+    local button = CreateFrame("Button", name, parent, "SecureActionButtonTemplate")
+    button:SetSize(size, size)
+    local scale = size / 45
+    button.slotArt = button:CreateTexture(nil, "BACKGROUND")
+    button.slotArt:SetAtlas("ui-hud-actionbar-iconframe-slot")
+    button.slotArt:SetAllPoints()
+    button.slotArt:SetDesaturated(true)
+    button.slotArt:SetAlpha(0)
+    button.icon = button:CreateTexture(nil, "ARTWORK")
+    button.icon:SetAllPoints()
+    button.iconMask = button:CreateMaskTexture()
+    button.iconMask:SetAtlas("UI-HUD-ActionBar-IconFrame-Mask")
+    -- SmallActionButtonMixin uses a 45px mask on a 30px button.
+    button.iconMask:SetSize(size * 1.5, size * 1.5)
+    button.iconMask:SetPoint("CENTER", button.icon, "CENTER")
+    button.icon:AddMaskTexture(button.iconMask)
+
+    button:SetNormalAtlas("UI-HUD-ActionBar-IconFrame")
+    button:SetPushedAtlas("UI-HUD-ActionBar-IconFrame-Down")
+    button:SetHighlightAtlas("UI-HUD-ActionBar-IconFrame-Mouseover")
+    for _, texture in ipairs({ button:GetNormalTexture(), button:GetPushedTexture(), button:GetHighlightTexture() }) do
+        texture:ClearAllPoints()
+        texture:SetPoint("TOPLEFT")
+        texture:SetSize(46 * scale, size)
+    end
+    button:GetNormalTexture():SetDrawLayer("OVERLAY")
+    button:GetPushedTexture():SetDrawLayer("OVERLAY")
+    -- HIGHLIGHT is conditional on mouse-over; OVERLAY draws it permanently.
+    button:GetHighlightTexture():SetDrawLayer("HIGHLIGHT")
+    -- The native idle artwork has a bright beveled rim even when desaturated.
+    -- Use a flat charcoal edge at rest; native feedback appears on hover/press.
+    button:GetNormalTexture():SetAlpha(0)
+    UI.Border(button, .22, .22, .22, 1)
+    button.count = UI.Text(button, "", "NumberFontNormal")
+    button.count:SetPoint("BOTTOMRIGHT", -5 * scale, 5 * scale)
+    return button
+end
+
 function UI.Scroll(parent, name)
     local scroll = CreateFrame("ScrollFrame", name, parent, "UIPanelScrollFrameTemplate")
     local content = CreateFrame("Frame", nil, scroll)

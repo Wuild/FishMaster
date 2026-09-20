@@ -142,6 +142,16 @@ test("missing legacy globals are not needed for item and skill lookup", function
     assert(FishMaster:GetProfessionLevel("Fishing") == 120)
     assert(FishMaster:FindBestPole() == 6256)
 end)
+test("Forever catalog contains only vanilla poles and lures", function()
+    local poles = { [19970]=true, [6367]=true, [19022]=true, [6365]=true,
+        [6366]=true, [6256]=true, [12225]=true }
+    local lures = { [6529]=true, [6530]=true, [6533]=true, [6811]=true, [6532]=true, [7307]=true }
+    assert(#ns.poles == 7 and #ns.lures == 6)
+    for _, item in ipairs(ns.poles) do assert(poles[item]); poles[item] = nil end
+    for _, lure in ipairs(ns.lures) do assert(lures[lure.item]); lures[lure.item] = nil end
+    assert(next(poles) == nil and next(lures) == nil)
+end)
+
 test("lures respect skill and lowest/strongest preference", function()
     assert(FishMaster:FindBestLure().item == 6529)
     FishMaster.db.char.lowestLure = false

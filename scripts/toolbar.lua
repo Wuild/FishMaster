@@ -21,7 +21,7 @@ function Toolbar:Create()
     local frame = CreateFrame("Frame", "FishMaster_Toolbar", UIParent)
     self.frame = frame
     frame:Hide()
-    frame:SetSize(390, 80)
+    frame:SetSize(390, 82)
     frame:SetFrameStrata("MEDIUM")
     UI.Position(frame, "toolbarPosition", 0, -210)
     UI.Drag(frame, "toolbarPosition")
@@ -29,7 +29,7 @@ function Toolbar:Create()
     frame.title:SetPoint("TOPLEFT", 12, -8)
     frame.state = UI.Text(frame, "", "GameFontHighlightSmall")
     frame.state:SetPoint("TOPRIGHT", -12, -8)
-    local cast = UI.IconButton(frame, 38, true, "FishMasterCastButton", true)
+    local cast = UI.ActionButton(frame, 45, "FishMasterCastButton")
     self.cast = cast
     cast:SetPoint("BOTTOMLEFT", 13, 13)
     cast.icon:SetTexture("Interface\\Icons\\INV_Fishingpole_02")
@@ -50,9 +50,11 @@ function Toolbar:Create()
         FishMaster:ScheduleTimer(function() self:Refresh() end, .15)
     end)
     self.lures = {}
+    local previous = cast
     for index, lure in ipairs(ns.lures) do
-        local button = UI.IconButton(frame, 30, true, "FishMasterLureButton" .. index, true)
-        button:SetPoint("LEFT", cast, "RIGHT", 15 + (index - 1) * 39, 0)
+        local button = UI.ActionButton(frame, 30, "FishMasterLureButton" .. index)
+        button:SetPoint("LEFT", previous, "RIGHT", 2, 0)
+        previous = button
         button.icon:SetTexture(lure.icon)
         button:RegisterForClicks("AnyDown", "AnyUp")
         button:SetAttribute("useOnKeyDown", false)
@@ -65,7 +67,7 @@ function Toolbar:Create()
         button:SetScript("OnLeave", function() GameTooltip:Hide() end)
         self.lures[index] = button
     end
-    frame:SetWidth(80 + #ns.lures * 39)
+    frame:SetWidth(26 + 45 + #ns.lures * 32)
 end
 
 function Toolbar:Refresh()
@@ -102,7 +104,7 @@ function Toolbar:Refresh()
             button:SetAttribute("item", nil)
             button:SetAttribute("target-slot", nil)
         end
-        button:SetAlpha(usable and 1 or .4)
+        button.icon:SetAlpha(usable and 1 or .4)
         button.icon:SetDesaturated(not usable)
     end
     self.frame.state:SetText(lured and string.format("%s %d:%02d", FishMaster:translate("toolbar.lure"),

@@ -14,17 +14,11 @@ _FishMaster.version = C_AddOns.GetAddOnMetadata(name, "Version");
 
 _FishMaster.iconPath = "Interface\\AddOns\\" .. _FishMaster.name .. "\\images\\"
 
+-- Vanilla item catalog for Forever; do not add expansion-only poles or lures.
 _FishMaster.poles = {
     19970, -- Arcanite Fishing Pole
     6367, -- Big Iron Fishing Pole
-    25978, -- Seth's Graphite Fishing Pole
     19022, -- Nat Pagle’s Extreme Angler FC-5000
-    45858, -- Nat's Lucky Fishing Pole
-
-    44050, -- Mastercraft Kalu'ak Fishing Pole
-    45992, -- Jeweled Fishing Pole
-    45991, -- Bone Fishing Pole
-
     6365, -- Strong Fishing Pole
     6366, -- Darkwood Fishing Pole
     6256, -- Fishing Pole
@@ -69,18 +63,6 @@ _FishMaster.lures = {
         bonus = 75,
         icon = "Interface\\Icons\\inv_misc_monstertail_03"
     },
-    {
-        item = 34861, -- Sharpened Fish Hook
-        skill = 100,
-        bonus = 100,
-        icon = "Interface\\Icons\\inv_misc_hook_01"
-    },
-    {
-        item = 46006, -- Glow Worm
-        skill = 100,
-        bonus = 100,
-        icon = "Interface\\Icons\\inv_inscription_pigment_bug07"
-    }
 
 }
 
