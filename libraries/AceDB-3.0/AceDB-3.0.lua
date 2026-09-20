@@ -260,7 +260,11 @@ local factionrealmKey = factionKey .. " - " .. realmKey
 local localeKey = GetLocale():lower()
 
 local regionTable = { "US", "KR", "EU", "TW", "CN" }
-local regionKey = regionTable[GetCurrentRegion()]
+-- Forever can report a region outside the standard Blizzard region table.
+-- Keep the existing character/profile keys and use a stable fallback only for
+-- the region-specific section; do not replace the client's global region API.
+local regionID = GetCurrentRegion and GetCurrentRegion()
+local regionKey = regionTable[regionID] or "UNKNOWN"
 local factionrealmregionKey = factionrealmKey .. " - " .. regionKey
 
 -- Actual database initialization function

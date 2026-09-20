@@ -10,10 +10,6 @@ function FishMaster:translate(key, ...)
     return value
 end
 
-function FishMaster:debug(...)
-    if self.db and self.db.global.debug then self:Print(...) end
-end
-
 function FishMaster:GetProfessionInfo(profession)
     return API.Profession(profession)
 end
@@ -21,10 +17,6 @@ end
 function FishMaster:GetProfessionLevel(profession)
     local _, rank, _, _, bonus = API.Profession(profession)
     return (rank or 0) + (bonus or 0)
-end
-
-function FishMaster:GetItemCount(item)
-    return API.ItemCount(item)
 end
 
 function FishMaster:CheckCombat()
@@ -35,13 +27,34 @@ function FishMaster:IsPoleEquipped()
     return API.IsPole(GetInventoryItemID("player", 16))
 end
 
+function FishMaster:IsOutfitEquipped()
+    if not self:IsPoleEquipped() then return false end
+    local main = GetInventoryItemID("player", 16)
+    local _, _, _, location = C_Item.GetItemInfoInstant(main)
+    local saved = false
+    for _, slot in ipairs(ns.slots) do
+        local item = self.db.char.outfit[slot.name]
+        if item and not (slot.id == 17 and location == "INVTYPE_2HWEAPON") then
+            saved = true
+            if GetInventoryItemID("player", slot.id) ~= item then return false end
+        end
+    end
+    return saved
+end
+
+function FishMaster:SyncEquipmentState()
+    self.db.char.enabled = self:IsPoleEquipped()
+    self:SetAudio()
+end
+
+function FishMaster:ShouldRestoreOutfit()
+    return self:IsPoleEquipped() or self.db.char.restorePending
+end
+
 function FishMaster:IsLured()
     if not self:IsPoleEquipped() then return false end
-    if C_PaperDollInfo.GetTemporaryEnchantmentInfo then
-        local enchant = C_PaperDollInfo.GetTemporaryEnchantmentInfo(16)
-        return enchant ~= nil, enchant and enchant.remainingTimeMs or 0
-    end
-    return GetWeaponEnchantInfo()
+    local enchant = C_PaperDollInfo.GetTemporaryEnchantmentInfo(16)
+    return enchant ~= nil, enchant and enchant.remainingTimeMs or 0
 end
 
 function FishMaster:FindBestPole()
@@ -56,10 +69,6 @@ function FishMaster:FindBestPole()
             if API.IsPole(item) then return item end
         end
     end
-end
-
-function FishMaster:HasPole()
-    return self:FindBestPole() ~= nil
 end
 
 function FishMaster:FindBestLure()
@@ -77,10 +86,14 @@ function FishMaster:FindBestLure()
 end
 
 function FishMaster:Toggle()
+    self:SyncEquipmentState()
     if self:CheckCombat() then self:Print(self:translate("error.combat")); return end
-    if ns.isCasting then return end
+    if self.gearSwap then self:Print(self:translate("outfit.changing")); return end
+    if UnitCastingInfo("player") or UnitChannelInfo("player") then
+        self:Print(self:translate("error.casting")); return
+    end
     if CursorHasItem() then self:Print(self:translate("error.cursor")); return end
-    if self.db.char.enabled then
+    if self:ShouldRestoreOutfit() then
         self:RestoreOutfit()
     else
         self:EquipOutfit()
@@ -99,62 +112,98 @@ function FishMaster:EquipOutfit()
         self:Print(self:translate("error.noPole")); return
     end
     -- Validate before replacing the restoration snapshot.
+    local required = {}
+    local _, _, _, location = C_Item.GetItemInfoInstant(settings.outfit.MainHandSlot or GetInventoryItemID("player", 16) or 0)
     for _, slot in ipairs(ns.slots) do
         local item = settings.outfit[slot.name]
-        if item and GetInventoryItemID("player", slot.id) ~= item and not API.FindItem(item) then
-            self:Print(self:translate("error.missingItem", API.ItemInfo(item) or tostring(item)))
-            return
+        if item and not (slot.id == 17 and location == "INVTYPE_2HWEAPON") then
+            required[item] = (required[item] or 0) + 1
+            if API.ItemCount(item) < required[item] then
+                self:Print(self:translate("error.missingItem", API.ItemInfo(item) or tostring(item)))
+                return
+            end
         end
     end
     settings.storedOutfit = {}
     for _, slot in ipairs(ns.slots) do
         settings.storedOutfit[slot.name] = GetInventoryItemID("player", slot.id) or false
     end
-    settings.enabled = true
-    -- Equip the main hand first: two-handed poles can displace the off hand.
-    local success = true
-    if settings.outfit.MainHandSlot then
-        success = API.Equip(settings.outfit.MainHandSlot, 16)
-    end
-    local _, _, _, equipLocation = C_Item.GetItemInfoInstant(settings.outfit.MainHandSlot or GetInventoryItemID("player", 16) or 0)
-    for _, slot in ipairs(ns.slots) do
-        local item = settings.outfit[slot.name]
-        if slot.id ~= 16 and item and not (slot.id == 17 and equipLocation == "INVTYPE_2HWEAPON") then
-            if not API.Equip(item, slot.id) then success = false end
-        end
-    end
-    if not success then self:Print(self:translate("error.equip")) end
-    self:SetAudio()
+    -- Keep the recovery snapshot even if a swap is interrupted or /reload occurs.
+    self:StartOutfitSwap(settings.outfit, false)
 end
 
 function FishMaster:RestoreOutfit()
-    local settings = self.db.char
-    local success = true
-    -- Restore weapons before other slots; restore originally empty slots too.
-    local order = { "MainHandSlot", "SecondaryHandSlot" }
-    for _, slot in ipairs(ns.slots) do
-        if slot.id ~= 16 and slot.id ~= 17 then table.insert(order, slot.name) end
+    local outfit = self.db.char.storedOutfit
+    -- A manually equipped pole may have no earlier outfit to restore.
+    if not next(outfit) and self:IsPoleEquipped() then outfit = { MainHandSlot = false } end
+    self:StartOutfitSwap(outfit, true)
+end
+
+function FishMaster:StartOutfitSwap(outfit, restoring)
+    local steps = {}
+    local main = outfit.MainHandSlot
+    local mainID = main
+    if mainID == nil then mainID = GetInventoryItemID("player", 16) end
+    local _, _, _, location = C_Item.GetItemInfoInstant(mainID or 0)
+    -- Make room for a two-handed pole before equipping it. Wait for the off-hand
+    -- to reach a bag before submitting the next request.
+    if location == "INVTYPE_2HWEAPON" then table.insert(steps, { id = 17, item = false }) end
+    if main ~= nil then table.insert(steps, { id = 16, item = main }) end
+    if outfit.SecondaryHandSlot ~= nil and location ~= "INVTYPE_2HWEAPON" then
+        table.insert(steps, { id = 17, item = outfit.SecondaryHandSlot })
     end
-    for _, slotName in ipairs(order) do
-        for _, slot in ipairs(ns.slots) do
-            if slot.name == slotName then
-                local item = settings.storedOutfit[slotName]
-                if item == false then
-                    if not API.EmptySlot(slot.id) then success = false end
-                elseif item then
-                    if not API.Equip(item, slot.id) then success = false end
-                end
-                break
-            end
+    for _, slot in ipairs(ns.slots) do
+        if slot.id ~= 16 and slot.id ~= 17 and outfit[slot.name] ~= nil then
+            table.insert(steps, { id = slot.id, item = outfit[slot.name] })
         end
     end
-    if not success then
-        self:Print(self:translate("error.restore"))
+    self.db.char.restorePending = true
+    self.gearSwap = { steps = steps, index = 1, restoring = restoring, deadline = GetTime() + 8 }
+    self:AdvanceOutfitSwap()
+end
+
+function FishMaster:AdvanceOutfitSwap()
+    local swap = self.gearSwap
+    if not swap or swap.processing then return end
+    if self:CheckCombat() or GetTime() > swap.deadline then
+        self.gearSwap = nil
+        self:Print(self:translate(swap.restoring and "error.restore" or "error.equip"))
+        self:Refresh()
         return
     end
-    settings.enabled = false
-    settings.storedOutfit = {}
-    self:UnsetAudio()
+    if CursorHasItem() or UnitCastingInfo("player") or UnitChannelInfo("player") then return end
+    swap.processing = true
+    while swap.steps[swap.index] do
+        local step = swap.steps[swap.index]
+        if IsInventoryItemLocked(step.id) then break end
+        if (GetInventoryItemID("player", step.id) or false) == step.item then
+            swap.index = swap.index + 1
+            swap.deadline = GetTime() + 8
+        else
+            -- Never replay a submitted swap while waiting for the server.
+            if not step.submitted then
+                if step.item == false then step.submitted = API.EmptySlot(step.id)
+                else step.submitted = API.Equip(step.item, step.id) end
+            end
+            break
+        end
+    end
+    swap.processing = false
+    if not swap.steps[swap.index] then
+        self.gearSwap = nil
+        for _, step in ipairs(swap.steps) do
+            if (GetInventoryItemID("player", step.id) or false) ~= step.item then
+                self:Print(self:translate(swap.restoring and "error.restore" or "error.equip"))
+                self:Refresh()
+                return
+            end
+        end
+        if swap.restoring then
+            self.db.char.storedOutfit = {}
+        end
+        self.db.char.restorePending = false
+        self:Refresh()
+    end
 end
 
 local soundValues = {
@@ -164,7 +213,7 @@ local soundValues = {
 
 function FishMaster:SetAudio()
     local settings = self.db.char
-    if not settings.enabled or not settings.audio.enabled then self:UnsetAudio(); return end
+    if not self:IsPoleEquipped() or not settings.audio.enabled then self:UnsetAudio(); return end
     for key, default in pairs(soundValues) do
         if key ~= "Sound_EnableAllSound" or settings.audio.force then
             if settings.defaultAudio[key] == nil then
@@ -201,39 +250,39 @@ local function addCatch(list, catch)
 end
 
 function FishMaster:OnLoot()
-    if ns.lootRecorded then return end
-    local fishingLoot
-    if C_Loot and C_Loot.IsFishingLoot then
-        fishingLoot = C_Loot.IsFishingLoot()
-    elseif IsFishingLoot then
-        fishingLoot = IsFishingLoot()
-    else
-        fishingLoot = ns.lastFishingCast and GetTime() - ns.lastFishingCast < 30 and self:IsPoleEquipped()
-    end
-    if not fishingLoot then return end
+    if not IsFishingLoot() then return end
     local total = GetNumLootItems()
     if total == 0 then return end
-    ns.lootRecorded = true
-    ns.lastFishingCast = nil
+    -- Slot indices remain stable for this loot window. Retry incomplete slots
+    -- without recounting the ones already recorded by LOOT_READY/LOOT_OPENED.
+    ns.lootRecorded = ns.lootRecorded or {}
+    ns.lootPending = false
+    local changed = false
     for index = 1, total do
-        local link = GetLootSlotLink(index)
-        if link then
+        if not ns.lootRecorded[index] then
+            local link = GetLootSlotLink(index)
             local icon, lootName, quantity, _, quality, _, quest = GetLootSlotInfo(index)
-            if not quest then
+            if quest then
+                ns.lootRecorded[index] = true
+            elseif link and lootName and quality ~= nil then
                 local itemID = tonumber(link:match("item:(%d+)"))
-                local catch = {
-                    itemID = itemID, link = link, item = lootName,
-                    quantity = tonumber(quantity) or 1, icon = icon,
-                    quality = quality or 0, zone = GetMinimapZoneText(),
-                }
-                if catch.item then
+                if itemID then
+                    local catch = {
+                        itemID = itemID, link = link, item = lootName,
+                        quantity = tonumber(quantity) or 1, icon = icon,
+                        quality = quality, zone = GetMinimapZoneText(),
+                    }
                     addCatch(self.db.char.loot, catch)
                     addCatch(ns.session, catch)
+                    changed = true
+                    ns.lootRecorded[index] = true
                 end
+            else
+                ns.lootPending = true
             end
         end
     end
-    self:Refresh()
+    if changed then self:Refresh() end
 end
 
 function FishMaster:GetCatches(session, zone, hideTrash)
@@ -259,26 +308,28 @@ function FishMaster:GetCatches(session, zone, hideTrash)
     return result, count
 end
 
-function FishMaster:OnSpellStart(_, unit, _, spellID)
+function FishMaster:OnSpellStart(_, unit)
     if unit ~= "player" then return end
     if self:CheckCombat() then return end
     ns.isCasting = true
-    if API.SpellName(spellID) == API.FishingName() then ns.lastFishingCast = GetTime() end
+    self.interaction:Refresh()
 end
 
-function FishMaster:OnSpellStop(event, unit)
+function FishMaster:OnSpellStop(_, unit)
     if unit ~= "player" then return end
     ns.isCasting = false
-    if event == "UNIT_SPELLCAST_INTERRUPTED" or event == "UNIT_SPELLCAST_FAILED" then
-        ns.lastFishingCast = nil
-    end
+    self.interaction:Refresh()
 end
 
 function FishMaster:Refresh()
     if not self.db then return end
+    -- Equipment and audio are safe to reconcile even when protected UI updates
+    -- must wait for combat to end (weapons can be changed during combat).
+    self:SyncEquipmentState()
     if self:CheckCombat() then ns.refreshPending = true; return end
     ns.refreshPending = false
     self.toolbar:Refresh()
+    self.interaction:Refresh()
     self.tracker:Refresh()
     self.equipment:Refresh()
 end

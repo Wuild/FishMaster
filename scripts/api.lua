@@ -24,21 +24,15 @@ function API.SlotInfo(name)
 end
 
 function API.CursorFits(slotID)
-    if C_PaperDollInfo.CursorCanGoInSlot then
-        return C_PaperDollInfo.CursorCanGoInSlot(slotID)
-    end
-    if C_PaperDollInfo.CanCursorCanGoInSlot then
-        return C_PaperDollInfo.CanCursorCanGoInSlot(slotID)
-    end
-    return CursorCanGoInSlot(slotID)
+    return C_PaperDollInfo.CursorCanGoInSlot(slotID)
 end
 
-function API.FindItem(itemID)
+function API.FindItem(itemID, includeLocked)
     for bag = 0, NUM_BAG_SLOTS or 4 do
         for slot = 1, C_Container.GetContainerNumSlots(bag) do
             if C_Container.GetContainerItemID(bag, slot) == itemID then
                 local info = C_Container.GetContainerItemInfo(bag, slot)
-                if info and not info.isLocked then return bag, slot end
+                if info and (includeLocked or not info.isLocked) then return bag, slot end
             end
         end
     end
@@ -46,16 +40,40 @@ end
 
 function API.Equip(itemID, slotID)
     if GetInventoryItemID("player", slotID) == itemID then return true end
-    if CursorHasItem() then return false end
+    if CursorHasItem() or IsInventoryItemLocked(slotID) then return false end
     local bag, slot = API.FindItem(itemID)
-    if not bag then return false end
-    C_Item.EquipItemByName(itemID, slotID)
-    return GetInventoryItemID("player", slotID) == itemID
+    local source
+    if bag then
+        C_Container.PickupContainerItem(bag, slot)
+    else
+        -- A locked bag copy may be arriving from the preceding swap. Do not
+        -- steal an identical item from a slot that has already been restored.
+        if API.FindItem(itemID, true) then return false end
+        -- Rings, trinkets and weapons may be in another equipment slot.
+        for _, entry in ipairs(ns.slots) do
+            if entry.id ~= slotID and GetInventoryItemID("player", entry.id) == itemID
+                and not IsInventoryItemLocked(entry.id) then
+                source = entry.id
+                PickupInventoryItem(source)
+                break
+            end
+        end
+    end
+    if not CursorHasItem() then return false end
+    if not API.CursorFits(slotID) then ClearCursor(); return false end
+    PickupInventoryItem(slotID)
+    if CursorHasItem() then
+        if bag then C_Container.PickupContainerItem(bag, slot)
+        elseif source then PickupInventoryItem(source) end
+    end
+    ClearCursor()
+    -- A submitted swap is not necessarily reflected in inventory until later.
+    return true
 end
 
 function API.EmptySlot(slotID)
     if not GetInventoryItemID("player", slotID) then return true end
-    if CursorHasItem() then return false end
+    if CursorHasItem() or IsInventoryItemLocked(slotID) then return false end
     -- A general-purpose bag avoids specialty-bag restrictions.
     for bag = 0, NUM_BAG_SLOTS or 4 do
         local free, family = C_Container.GetContainerNumFreeSlots(bag)
@@ -63,9 +81,10 @@ function API.EmptySlot(slotID)
             for slot = 1, C_Container.GetContainerNumSlots(bag) do
                 if not C_Container.GetContainerItemID(bag, slot) then
                     PickupInventoryItem(slotID)
+                    if not CursorHasItem() then return false end
                     C_Container.PickupContainerItem(bag, slot)
                     ClearCursor()
-                    return not GetInventoryItemID("player", slotID)
+                    return true
                 end
             end
         end
@@ -77,20 +96,11 @@ function API.Profession(requestedName)
     if not requestedName then return nil end
     local requested = requestedName:lower()
     local fishing = requested == "fishing" or requested == API.FishingName():lower()
-    if GetProfessions and GetProfessionInfo then
-        -- Primary professions can be nil even when fishing is learned.
-        for _, index in pairs({ GetProfessions() }) do
-            local name, _, rank, maximum, _, _, skillLine, bonus = GetProfessionInfo(index)
-            if name and (name:lower() == requested or (fishing and skillLine == 356)) then
-                return name, rank or 0, 0, maximum or 0, bonus or 0, nil
-            end
-        end
-    elseif GetNumSkillLines and GetSkillLineInfo then
-        for index = 1, GetNumSkillLines() do
-            local name, _, _, rank, temporary, bonus, maximum, _, _, _, _, _, description = GetSkillLineInfo(index)
-            if name and (name:lower() == requested or (fishing and name == API.FishingName())) then
-                return name, rank or 0, temporary or 0, maximum or 0, bonus or 0, description
-            end
+    -- Primary professions can be nil even when fishing is learned.
+    for _, index in pairs({ GetProfessions() }) do
+        local name, _, rank, maximum, _, _, skillLine, bonus = GetProfessionInfo(index)
+        if name and (name:lower() == requested or (fishing and skillLine == 356)) then
+            return name, rank or 0, 0, maximum or 0, bonus or 0, nil
         end
     end
 end

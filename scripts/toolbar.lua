@@ -3,6 +3,10 @@ local API, UI = ns.API, ns.UI
 local Toolbar = {}
 FishMaster.toolbar = Toolbar
 
+local function stopMouselook()
+    if IsMouselooking() then MouselookStop() end
+end
+
 local function bindItem(button, itemID, suffix)
     suffix = suffix or ""
     local bag, slot = API.FindItem(itemID)
@@ -14,34 +18,40 @@ end
 
 function Toolbar:Create()
     if self.frame then return end
-    local frame = CreateFrame("Frame", "FishMaster_Toolbar", UIParent, "BackdropTemplate")
+    local frame = CreateFrame("Frame", "FishMaster_Toolbar", UIParent)
     self.frame = frame
     frame:Hide()
     frame:SetSize(390, 80)
     frame:SetFrameStrata("MEDIUM")
-    frame:SetBackdrop({ bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 12,
-        insets = { left = 3, right = 3, top = 3, bottom = 3 } })
     UI.Position(frame, "toolbarPosition", 0, -210)
     UI.Drag(frame, "toolbarPosition")
     frame.title = UI.Text(frame, "FishMaster", "GameFontNormalSmall")
     frame.title:SetPoint("TOPLEFT", 12, -8)
     frame.state = UI.Text(frame, "", "GameFontHighlightSmall")
     frame.state:SetPoint("TOPRIGHT", -12, -8)
-    local cast = UI.IconButton(frame, 38, true, "FishMasterCastButton")
+    local cast = UI.IconButton(frame, 38, true, "FishMasterCastButton", true)
     self.cast = cast
     cast:SetPoint("BOTTOMLEFT", 13, 13)
     cast.icon:SetTexture("Interface\\Icons\\INV_Fishingpole_02")
     cast:RegisterForClicks("AnyDown", "AnyUp")
     cast:SetAttribute("useOnKeyDown", false)
     UI.Tooltip(cast, API.FishingName(), FishMaster:translate("toolbar.castHelp"))
-    cast:SetScript("PostClick", function()
+    cast:SetScript("PreClick", function(_, _, down)
+        if not self.overrideUntil then return end
+        if down then self.overridePressed = true end
+        -- The world may have started right-button camera control before the
+        -- secure cast receives this input. End it before executing the action.
+        stopMouselook()
+    end)
+    cast:SetScript("PostClick", function(_, _, down)
+        if down then self.overridePressed = self.overrideUntil ~= nil; return end
+        self.lastCastClick = GetTime()
         self:ClearOverride()
         FishMaster:ScheduleTimer(function() self:Refresh() end, .15)
     end)
     self.lures = {}
     for index, lure in ipairs(ns.lures) do
-        local button = UI.IconButton(frame, 30, true, "FishMasterLureButton" .. index)
+        local button = UI.IconButton(frame, 30, true, "FishMasterLureButton" .. index, true)
         button:SetPoint("LEFT", cast, "RIGHT", 15 + (index - 1) * 39, 0)
         button.icon:SetTexture(lure.icon)
         button:RegisterForClicks("AnyDown", "AnyUp")
@@ -102,25 +112,40 @@ function Toolbar:Refresh()
 end
 
 function Toolbar:ClearOverride()
+    -- A cast can consume the release normally handled by the world's camera
+    -- binding. Also clean up if the gesture is cancelled after its second down.
+    if self.overridePressed then stopMouselook() end
     if InCombatLockdown() then ns.clearBindingPending = true; return end
     if self.cast then ClearOverrideBindings(self.cast) end
     self.overrideUntil = nil
+    self.overridePressed = nil
+    self.worldPress = nil
     ns.clearBindingPending = false
 end
 
 function Toolbar:OnWorldMouseDown(_, button)
+    self.worldPress = nil
     if button ~= "RightButton" or not FishMaster.db.char.easyCast or FishMaster:CheckCombat()
-        or not FishMaster:IsPoleEquipped() or (LootFrame and LootFrame:IsShown()) then return end
-    local now = GetTime()
-    local previous = self.lastClick
-    self.lastClick = now
-    if not previous or now - previous > .4 or now - previous < .05 then return end
-    self.lastClick = nil
-    -- The second physical click's release activates the secure button.
+        or not FishMaster:IsPoleEquipped() or (LootFrame and LootFrame:IsShown())
+        or UnitCastingInfo("player") or UnitChannelInfo("player") or CursorHasItem() then return end
+    local x, y = GetCursorPosition()
+    self.worldPress = { time = GetTime(), x = x, y = y }
+end
+
+function Toolbar:OnWorldMouseUp(_, button)
+    local press = self.worldPress
+    self.worldPress = nil
+    if button ~= "RightButton" or not press or FishMaster:CheckCombat() then return end
+    local now, x, y = GetTime(), GetCursorPosition()
+    if now - press.time > .3 or math.abs(x - press.x) + math.abs(y - press.y) > 10
+        or (self.lastCastClick and now - self.lastCastClick < .1) then return end
+    -- Install after the FIRST release so the next physical press/release pair
+    -- is routed through the secure button. Installing on the second down is late.
+    stopMouselook()
     SetOverrideBindingClick(self.cast, true, "BUTTON2", self.cast:GetName(), "LeftButton")
     self.overrideUntil = now + .4
 end
 
 function Toolbar:Tick()
-    if self.overrideUntil and GetTime() > self.overrideUntil then self:ClearOverride() end
+    if self.overrideUntil and GetTime() > self.overrideUntil and not self.overridePressed then self:ClearOverride() end
 end

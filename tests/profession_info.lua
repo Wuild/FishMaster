@@ -19,7 +19,7 @@ local function expectInfo(name, rank, temporary, maximum, modifier, description)
     assert(actualDescription == description)
 end
 
--- Modern client: fishing exists even without either primary profession.
+-- Forever: fishing exists even without either primary profession.
 PROFESSIONS_FISHING = "Fishing"
 GetProfessions = function() return nil, nil, nil, 4, 5 end
 GetProfessionInfo = function(index)
@@ -45,22 +45,4 @@ assert(FishMaster:GetProfessionInfo("Angeln") == nil)
 assert(FishMaster:GetProfessionLevel("fishing") == 0)
 assert(FishMaster:GetProfessionLevel(nil) == 0)
 
--- Legacy client: retain the existing six-value result and gear bonus.
-GetProfessions = nil
-GetProfessionInfo = nil
-GetNumSkillLines = function() return 2 end
-GetSkillLineInfo = function(index)
-    if index == 1 then return nil end
-    return "Angeln", false, true, 200, 5, 20, 225,
-        true, 0, 0, 0, 0, "Fishing skill"
-end
-expectInfo("Angeln", 200, 5, 225, 20, "Fishing skill")
-assert(FishMaster:GetProfessionLevel("fishing") == 220)
-assert(FishMaster:GetProfessionLevel("Cooking") == 0)
-
--- A client with neither API must not call a missing function.
-GetNumSkillLines = nil
-GetSkillLineInfo = nil
-assert(FishMaster:GetProfessionInfo("Angeln") == nil)
-assert(FishMaster:GetProfessionLevel("fishing") == 0)
-print("Profession compatibility checks passed")
+print("Forever profession checks passed")

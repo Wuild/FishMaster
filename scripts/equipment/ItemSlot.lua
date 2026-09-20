@@ -3,21 +3,41 @@ local API, UI = ns.API, ns.UI
 FishMaster.ItemSlot = {}
 
 function FishMaster.ItemSlot:Create(parent, slot)
-    local button = UI.IconButton(parent, 38)
+    local native = _G["Character" .. slot.name]
+    local size = native and native:GetWidth() or (slot.id == 0 and 27 or 37)
+    local button = UI.IconButton(parent, size, false, nil, true)
+    button.icon:SetTexCoord(0, 1, 0, 1)
+    -- ItemButton's icon is below its normal border. ARTWORK would obscure it.
+    button.icon:SetDrawLayer("BORDER")
+    button:SetNormalTexture("Interface\\Buttons\\UI-Quickslot2")
+    local normal = button:GetNormalTexture()
+    normal:SetSize(64, 64)
+    normal:ClearAllPoints()
+    normal:SetPoint("CENTER", 0, -1)
+    -- Forever 1.60.1.69913: Blizzard_UIPanels_Game/Camelot/PaperDollFrame.xml.
+    -- Mainline's Char-* texture templates are NOT the Camelot paper-doll border.
+    button.slotFrame = button:CreateTexture(nil, "BACKGROUND")
+    button.slotFrame:SetAtlas(slot.id == 0 and "UI-Character-Info-GearSlotSmall" or "UI-Character-Info-GearSlot", true)
+    button.slotFrame:SetPoint("CENTER")
+    if slot.id == 0 then
+        local arrow = button:CreateTexture(nil, "OVERLAY")
+        arrow:SetAtlas("UI-Character-Info-GearSlot-Arrow", true)
+        arrow:SetPoint("RIGHT", button, "LEFT", 6, 0)
+    end
     button.slot = slot
     button:SetID(slot.id)
     button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
     button:RegisterForDrag("LeftButton")
     button.label = UI.Text(button, slot.label or slot.name, "GameFontNormalSmall")
-    button.label:SetWidth(105)
+    button.label:SetWidth(slot.side == "bottom" and 88 or 94)
     if slot.side == "right" then
         button.label:SetPoint("RIGHT", button, "LEFT", -8, 0)
         button.label:SetJustifyH("RIGHT")
     elseif slot.side == "left" then
         button.label:SetPoint("LEFT", button, "RIGHT", 8, 0)
     else
-        button.label:SetPoint("TOP", button, "BOTTOM", 0, -6)
-        button.label:SetJustifyH("CENTER")
+        -- Native weapon grouping is compact; slot names remain in the tooltip.
+        button.label:Hide()
     end
     button:SetScript("OnReceiveDrag", function(self) FishMaster.ItemSlot:Receive(self) end)
     button:SetScript("OnClick", function(self, mouse)
@@ -32,7 +52,9 @@ function FishMaster.ItemSlot:Create(parent, slot)
     button:SetScript("OnEnter", function(self)
         GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
         local item = FishMaster.db.char.outfit[slot.name]
-        if item then GameTooltip:SetItemByID(item)
+        if item then
+            GameTooltip:SetItemByID(item)
+            GameTooltip:AddLine(slot.label or slot.name, .8, .7, .5)
         else
             GameTooltip:SetText(slot.label or slot.name)
             GameTooltip:AddLine(FishMaster:translate("outfit.empty"), 1, 1, 1, true)
@@ -68,6 +90,7 @@ function FishMaster.ItemSlot:Refresh(button)
     end
     button.icon:SetTexture(texture or 134400)
     local color = ITEM_QUALITY_COLORS[quality or 1] or ITEM_QUALITY_COLORS[1]
-    button:GetNormalTexture():SetVertexColor(color.r, color.g, color.b)
     button.icon:SetDesaturated(false)
+    button.icon:SetAlpha(1)
+    button.label:SetTextColor(item and color.r or .72, item and color.g or .64, item and color.b or .49)
 end

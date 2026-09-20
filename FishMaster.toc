@@ -1,11 +1,10 @@
 ## Interface: 16001
 ## Title: FishMaster |cff69ccf0Forever|r
 ## Author: Wuild
-## Version: 2.0.0-forever.1
+## Version: @project-version@
 ## Notes: Fishing outfits, lures and catch tracking for World of Warcraft: Forever.
 ## OptionalDeps: Ace3, LibStub, LibDataBroker-1.1, LibDBIcon-1.0
 ## SavedVariables: FishMasterSettings
-## SavedVariablesPerCharacter: FishMasterCharacter
 
 embeds.xml
 scripts/configs.lua
@@ -23,4 +22,5 @@ scripts/equipment/ItemSlot.lua
 scripts/equipment.lua
 scripts/tracker.lua
 scripts/toolbar.lua
+scripts/interaction.lua
 scripts/main.lua

@@ -5,14 +5,11 @@ FishMaster.tracker = Tracker
 
 function Tracker:Create()
     if self.frame then return end
-    local frame = CreateFrame("Frame", "FishMaster_Tracker", UIParent, "BackdropTemplate")
+    local frame = CreateFrame("Frame", "FishMaster_Tracker", UIParent)
     self.frame = frame
     frame:Hide()
     frame:SetSize(310, 110)
     frame:SetFrameStrata("MEDIUM")
-    frame:SetBackdrop({ bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
-        edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 12,
-        insets = { left = 3, right = 3, top = 3, bottom = 3 } })
     UI.Position(frame, "trackerPosition", 330, -140)
     UI.Drag(frame, "trackerPosition")
     frame.title = UI.Text(frame, "", "GameFontNormal")
@@ -22,10 +19,16 @@ function Tracker:Create()
     frame.zone:SetWidth(285)
     frame.empty = UI.Text(frame, FishMaster:translate("tracker.empty"), "GameFontDisableSmall")
     frame.empty:SetPoint("TOPLEFT", 12, -61)
-    frame.more = UI.Button(frame, FishMaster:translate("log.open"), 150, function()
+    frame.more = CreateFrame("Button", nil, frame)
+    frame.more:SetSize(150, 26)
+    frame.more.label = UI.Text(frame.more, FishMaster:translate("log.open"), "GameFontNormalSmall")
+    frame.more.label:SetPoint("CENTER")
+    frame.more:SetScript("OnClick", function()
         FishMaster.equipment.frame:Show()
         FishMaster.equipment:SelectTab(3)
     end)
+    frame.more:SetScript("OnEnter", function(self) self.label:SetTextColor(1, 1, 1) end)
+    frame.more:SetScript("OnLeave", function(self) self.label:SetTextColor(1, .82, 0) end)
     frame.more:SetPoint("BOTTOM", 0, 8)
     self.rows = {}
 end
@@ -45,7 +48,7 @@ function Tracker:Refresh()
     for index = 1, math.min(6, #entries) do
         local row = self.rows[index]
         if not row then
-            row = UI.CatchRow(frame, 288)
+            row = UI.CatchRow(frame, 288, true)
             row:SetPoint("TOPLEFT", 10, -55 - (index - 1) * 36)
             self.rows[index] = row
         end

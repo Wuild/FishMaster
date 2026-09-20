@@ -16,6 +16,23 @@ function UI.Background(parent, r, g, b, a)
     return texture
 end
 
+-- Thin metal edging, drawn without adding another mouse-intercepting frame.
+function UI.Border(parent, r, g, b, alpha)
+    for _, edge in ipairs({ "TOP", "BOTTOM", "LEFT", "RIGHT" }) do
+        local line = parent:CreateTexture(nil, "BORDER")
+        line:SetColorTexture(r, g, b, alpha or 1)
+        if edge == "TOP" or edge == "BOTTOM" then
+            line:SetPoint(edge .. "LEFT")
+            line:SetPoint(edge .. "RIGHT")
+            line:SetHeight(1)
+        else
+            line:SetPoint("TOP" .. edge)
+            line:SetPoint("BOTTOM" .. edge)
+            line:SetWidth(1)
+        end
+    end
+end
+
 function UI.Atlas(texture, atlas)
     if C_Texture.GetAtlasInfo(atlas) then texture:SetAtlas(atlas); return true end
     return false
@@ -63,16 +80,18 @@ function UI.Tooltip(frame, title, body)
     frame:SetScript("OnLeave", function() GameTooltip:Hide() end)
 end
 
-function UI.IconButton(parent, size, secure, name)
+function UI.IconButton(parent, size, secure, name, borderless)
     local button = CreateFrame("Button", name, parent, secure and "SecureActionButtonTemplate" or nil)
     button:SetSize(size, size)
     button.icon = button:CreateTexture(nil, "ARTWORK")
     button.icon:SetAllPoints()
     button.icon:SetTexCoord(.07, .93, .07, .93)
-    button:SetNormalTexture("Interface\\Buttons\\UI-Quickslot2")
-    button:GetNormalTexture():SetSize(size * 1.65, size * 1.65)
-    button:GetNormalTexture():ClearAllPoints()
-    button:GetNormalTexture():SetPoint("CENTER", 0, -1)
+    if not borderless then
+        button:SetNormalTexture("Interface\\Buttons\\UI-Quickslot2")
+        button:GetNormalTexture():SetSize(size * 1.65, size * 1.65)
+        button:GetNormalTexture():ClearAllPoints()
+        button:GetNormalTexture():SetPoint("CENTER", 0, -1)
+    end
     button:SetPushedTexture("Interface\\Buttons\\UI-Quickslot-Depress")
     button:SetHighlightTexture("Interface\\Buttons\\ButtonHilight-Square", "ADD")
     button.count = UI.Text(button, "", "NumberFontNormal")
@@ -120,11 +139,13 @@ function UI.Drag(frame, key, handle)
     end)
 end
 
-function UI.CatchRow(parent, width)
+function UI.CatchRow(parent, width, plain)
     local row = CreateFrame("Button", nil, parent)
     row:SetSize(width, 34)
-    row.background = UI.Background(row, 1, 1, 1, .035)
-    row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
+    if not plain then
+        row.background = UI.Background(row, 1, 1, 1, .035)
+        row:SetHighlightTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight", "ADD")
+    end
     row.icon = row:CreateTexture(nil, "ARTWORK")
     row.icon:SetSize(26, 26)
     row.icon:SetPoint("LEFT", 6, 0)

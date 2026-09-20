@@ -20,7 +20,7 @@ function FishMaster:GatherSlash(input)
     if command == "" or command == "toggle" then self:Toggle()
     elseif command == "config" or command == "configs" or command == "outfit" then self.equipment:Toggle()
     elseif command == "loot" then
-        self.equipment.frame:Show()
+        ShowUIPanel(self.equipment.frame)
         self.equipment:SelectTab(3)
     else self:Print(self:translate("commands.help")) end
 end
@@ -43,6 +43,7 @@ function FishMaster:OnInitialize()
         end,
     })
     self.minimap:Register("FishMasterMinimapIcon", broker, self.db.profile.minimap)
+    self.interaction:Create()
     self.equipment:Create()
     self.toolbar:Create()
     self.tracker:Create()
@@ -58,7 +59,11 @@ function FishMaster:OnEnable()
     end
     self:RegisterEvent("LOOT_READY", "OnLoot")
     self:RegisterEvent("LOOT_OPENED", "OnLoot")
-    self:RegisterEvent("LOOT_CLOSED", function() ns.lootRecorded = false end)
+    self:RegisterEvent("LOOT_SLOT_CHANGED", "OnLoot")
+    self:RegisterEvent("LOOT_CLOSED", function()
+        ns.lootRecorded, ns.lootPending = nil, false
+        self.interaction:Refresh()
+    end)
     self:RegisterEvent("PLAYER_REGEN_ENABLED", function()
         self.toolbar:ClearOverride()
         self:Refresh()
@@ -70,11 +75,19 @@ function FishMaster:OnEnable()
     self:RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP", "OnSpellStop")
     self:RegisterEvent("UNIT_SPELLCAST_FAILED", "OnSpellStop")
     self:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED", "OnSpellStop")
-    self:RegisterEvent("PLAYER_LOGOUT", "UnsetAudio")
+    self:RegisterEvent("PLAYER_LOGOUT", function() self:UnsetAudio(); self.interaction:Clear() end)
     if not self:IsHooked(WorldFrame, "OnMouseDown") then
         self:SecureHookScript(WorldFrame, "OnMouseDown", function(...) self.toolbar:OnWorldMouseDown(...) end)
     end
-    self.tick = self:ScheduleRepeatingTimer(function() self.toolbar:Tick() end, .1)
+    if not self:IsHooked(WorldFrame, "OnMouseUp") then
+        self:SecureHookScript(WorldFrame, "OnMouseUp", function(...) self.toolbar:OnWorldMouseUp(...) end)
+    end
+    self.tick = self:ScheduleRepeatingTimer(function()
+        self.toolbar:Tick()
+        self:AdvanceOutfitSwap()
+        if ns.lootPending then self:OnLoot() end
+        self.interaction:Refresh()
+    end, .1)
     self.lureTick = self:ScheduleRepeatingTimer(function() self.toolbar:Refresh() end, 1)
     self:SettingsChanged()
 end
@@ -85,8 +98,10 @@ function FishMaster:OnDisable()
     self:UnregisterAllBuckets()
     self:UnhookAll()
     self.toolbar:ClearOverride()
+    self.gearSwap = nil
     self:UnsetAudio()
     if not InCombatLockdown() then self.toolbar.frame:Hide() end
     self.tracker.frame:Hide()
-    self.equipment.frame:Hide()
+    HideUIPanel(self.equipment.frame)
+    self.interaction:Clear()
 end
