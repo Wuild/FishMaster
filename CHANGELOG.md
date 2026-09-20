@@ -1,5 +1,13 @@
 # Release notes
 
+## 3.0.1
+
+- Corrected HUD highlights so they only appear on mouse-over.
+- Compact 2px button spacing, with a larger cast button and smaller lure buttons.
+- Removed expansion-only poles and lures from the vanilla catalog.
+
+Replaces the duplicate 3.0.0 upload with a distinct release version.
+
 ## 3.0.0
 
 First public release of the WoW Forever edition (1.60.1).

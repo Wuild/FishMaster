@@ -20,6 +20,8 @@ python tools/package.py
 
 ## Publishing
 
+Before every upload, check the latest release version in the CurseForge author dashboard, including pending files. Confirm the intended version is not already uploaded; local Git tags are not sufficient. If the latest version cannot be verified, ask the owner before uploading. Never choose a version based only on the changelog or retry an uncertain upload without checking the dashboard.
+
 Publish locally with Python 3.9+ using `tools/publish.py`, following the same setup as GatherLite. Copy `.env.example` to `.env` and enter your CurseForge upload token. The file is ignored by Git. Settings default to FishMaster project `398695` and WoW Forever `1.60.1`; `CURSEFORGE_GAME_VERSION` accepts comma-separated supported game versions.
 
 Run the development checks above, then preview or build without credentials or network access:
